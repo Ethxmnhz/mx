@@ -59,6 +59,8 @@ export default function EditCourse() {
       <input type="number" name="price" defaultValue={course.price} placeholder="Price" required className="w-full p-2 border rounded"/>
       <input name="category" defaultValue={course.category} placeholder="Category" className="w-full p-2 border rounded"/>
       <input name="prerequisites" defaultValue={course.prerequisites} placeholder="Prerequisites" className="w-full p-2 border rounded"/>
+      {/* Ensure objectives is sent as a JSON string to the server */}
+      <input type="hidden" name="objectives" value={course.objectives ? JSON.stringify(course.objectives) : JSON.stringify([])} />
       <input type="file" name="thumbnail" className="w-full"/>
       <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Update Course</button>
     </form>
