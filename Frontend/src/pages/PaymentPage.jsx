@@ -19,7 +19,7 @@ export default function PaymentPage() {
 	const canContinue = nameOk && emailOk;
 
 	// Config and helpers
-	const API_BASE = (import.meta?.env?.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+	const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
 	const SUPPORT_WA = (import.meta?.env?.VITE_SUPPORT_WHATSAPP || import.meta?.env?.VITE_WHATSAPP_NUMBER || '').toString().replace(/[^0-9]/g, '');
 
 	const helpWhatsappUrl = useMemo(() => {

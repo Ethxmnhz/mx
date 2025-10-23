@@ -26,7 +26,8 @@ const AdminCourseContent = () => {
 
   const fetchContents = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/courses/${courseId}/contents`, {
+      const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+      const response = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -47,7 +48,8 @@ const AdminCourseContent = () => {
     if (!window.confirm('Are you sure you want to delete this content?')) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/courses/contents/${contentId}`, {
+      const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+      const response = await fetch(`${API_BASE}/api/admin/courses/contents/${contentId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

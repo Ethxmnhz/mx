@@ -161,7 +161,8 @@ const CourseContentUpload = () => {
             continue; // Skip invalid content
           }
 
-          const response = await fetch(`http://localhost:3000/api/admin/courses/${courseId}/contents`, {
+          const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+          const response = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`

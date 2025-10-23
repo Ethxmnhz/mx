@@ -26,7 +26,8 @@ export default function CreateCourse() {
   useEffect(() => {
     if (!courseId) return;
     const token = localStorage.getItem("token");
-    fetch(`http://localhost:3000/api/admin/courses/${courseId}`, {
+  const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+  fetch(`${API_BASE}/api/admin/courses/${courseId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -77,8 +78,8 @@ export default function CreateCourse() {
       }
 
       const url = courseId
-        ? `http://localhost:3000/api/admin/courses/${courseId}`
-        : "http://localhost:3000/api/admin/coursecreation";
+        ? `${API_BASE}/api/admin/courses/${courseId}`
+        : `${API_BASE}/api/admin/coursecreation`;
 
       const method = courseId ? "PUT" : "POST";
 

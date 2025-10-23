@@ -14,7 +14,7 @@ export default function AdminCouponUsage() {
   const [error, setError] = useState('');
   const [items, setItems] = useState([]);
 
-  const API_BASE = (import.meta?.env?.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
   const token = localStorage.getItem('token');
 
   const load = async () => {

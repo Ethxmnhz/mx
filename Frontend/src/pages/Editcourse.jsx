@@ -9,7 +9,8 @@ export default function EditCourse() {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/courses/${courseId}`, {
+        const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+        const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}`, {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -30,7 +31,8 @@ export default function EditCourse() {
     const formData = new FormData(e.target);
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/courses/${courseId}`, { // Changed from 'id' to 'courseId'
+  const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+  const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}`, { // Changed from 'id' to 'courseId'
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
