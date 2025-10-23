@@ -15,10 +15,16 @@ const app =express()
 
 // Update CORS configuration
 app.use(cors({
-    origin: 'http://localhost:5173', // Your frontend URL
-    credentials:true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'https://maxsec.tech',
+    'https://www.maxsec.tech',
+    'https://mx-3xxg.onrender.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
 app.use(express.json({limit:"16kb"}))
