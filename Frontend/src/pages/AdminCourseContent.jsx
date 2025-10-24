@@ -143,10 +143,11 @@ const AdminCourseContent = () => {
             </div>
           ) : (
             <div className="divide-y divide-white/10">
-              {contents.map((module) => (
+              {[...contents].sort((a, b) => (a.module_order ?? 0) - (b.module_order ?? 0)).map((module, i) => (
                 <div key={module.module_name} className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleModule(module.module_name)}>
+                      <span className="text-xs text-slate-400 mr-1">#{module.module_order ?? i + 1}</span>
                       <h3 className="text-base font-medium text-slate-100">{module.module_name}</h3>
                       {expandedModules[module.module_name] ? (
                         <ChevronUpIcon className="w-5 h-5 text-slate-400" />

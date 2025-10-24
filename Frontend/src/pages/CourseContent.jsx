@@ -207,11 +207,26 @@ const CourseContent = () => {
     </div>
   );
 
-  const modules = courseData.content.reduce((acc, item) => {
-    if (!acc[item.module_name]) acc[item.module_name] = [];
-    acc[item.module_name].push(item);
-    return acc;
-  }, {});
+  // Group lessons by module name, and collect module_order for sorting
+  const moduleMap = {};
+  courseData.content.forEach(item => {
+    if (!moduleMap[item.module_name]) {
+      moduleMap[item.module_name] = {
+        module_order: item.module_order,
+        lessons: []
+      };
+    }
+    moduleMap[item.module_name].lessons.push(item);
+  });
+
+  // Sort modules by module_order
+  const sortedModules = Object.entries(moduleMap)
+    .sort((a, b) => (a[1].module_order ?? 0) - (b[1].module_order ?? 0));
+
+  // Sort lessons within each module by order_number
+  sortedModules.forEach(([_, module]) => {
+    module.lessons.sort((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0));
+  });
 
   // Toggle module expand/collapse
   const toggleModule = (moduleName) => {
@@ -244,7 +259,7 @@ const CourseContent = () => {
         </div>
         {/* Module List */}
         <div className="p-4 space-y-2">
-          {Object.entries(modules).map(([moduleName, lessons], moduleIndex) => (
+          {sortedModules.map(([moduleName, module], moduleIndex) => (
             <div key={moduleIndex} className="bg-white/5 rounded-lg border border-white/10">
               <button
                 onClick={() => toggleModule(moduleName)}
@@ -254,7 +269,7 @@ const CourseContent = () => {
                   <BookOpenIcon className="w-5 h-5 text-emerald-300" />
                   <div className="text-left">
                     <h3 className="font-medium text-slate-100">{moduleName}</h3>
-                    <p className="text-xs text-slate-500">{lessons.length} lessons</p>
+                    <p className="text-xs text-slate-500">{module.lessons.length} lessons</p>
                   </div>
                 </div>
                 {expandedModules[moduleName] ? (
@@ -265,7 +280,7 @@ const CourseContent = () => {
               </button>
               {expandedModules[moduleName] && (
                 <div className="ml-4 mr-2 mb-4 space-y-1">
-                  {lessons.map(lesson => (
+                  {module.lessons.map(lesson => (
                     <button
                       key={lesson.id}
                       onClick={() => setActiveContent(lesson)}
