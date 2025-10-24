@@ -28,14 +28,23 @@ export const moveModule = async (req, res) => {
       modules.reduce((map, m) => map.set(m.module_id, m), new Map()).values()
     );
     const idx = uniqueModules.findIndex(m => String(m.module_id) === String(moduleId));
+    console.log('moveModule debug:', {
+      uniqueModules,
+      idx,
+      direction,
+      moduleId,
+      courseId
+    });
     if (idx === -1) return res.status(404).json({ message: 'Module not found' });
 
     let swapIdx = direction === 'up' ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= uniqueModules.length) {
-      return res.status(400).json({ message: 'Cannot move module further' });
+      console.log('moveModule debug: Cannot move module further', { idx, swapIdx, total: uniqueModules.length });
+      return res.status(400).json({ message: 'Cannot move module further', idx, swapIdx, total: uniqueModules.length });
     }
     const current = uniqueModules[idx];
     const swapWith = uniqueModules[swapIdx];
+    console.log('moveModule debug: Swapping', { current, swapWith });
 
     // Swap module_order for all contents in both modules
     await Promise.all([
@@ -49,7 +58,7 @@ export const moveModule = async (req, res) => {
         .eq('module_id', swapWith.module_id)
     ]);
 
-    res.json({ message: 'Module moved' });
+    res.json({ message: 'Module moved', idx, swapIdx, current, swapWith });
   } catch (err) {
     console.error('moveModule error:', err);
     res.status(500).json({ message: 'Internal server error' });
@@ -91,13 +100,22 @@ export const moveTopic = async (req, res) => {
     if (topicsError) return res.status(500).json({ message: 'Failed to fetch topics' });
 
     const idx = topics.findIndex(t => String(t.id) === String(contentId));
+    console.log('moveTopic debug:', {
+      topics,
+      idx,
+      direction,
+      contentId,
+      courseId
+    });
     if (idx === -1) return res.status(404).json({ message: 'Topic not found in module' });
 
     let swapIdx = direction === 'up' ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= topics.length) {
-      return res.status(400).json({ message: 'Cannot move topic further' });
+      console.log('moveTopic debug: Cannot move topic further', { idx, swapIdx, total: topics.length });
+      return res.status(400).json({ message: 'Cannot move topic further', idx, swapIdx, total: topics.length });
     }
     const swapWith = topics[swapIdx];
+    console.log('moveTopic debug: Swapping', { current, swapWith });
 
     // Swap order_number
     await Promise.all([
@@ -109,7 +127,7 @@ export const moveTopic = async (req, res) => {
         .eq('id', swapWith.id)
     ]);
 
-    res.json({ message: 'Topic moved' });
+    res.json({ message: 'Topic moved', idx, swapIdx, current, swapWith });
   } catch (err) {
     console.error('moveTopic error:', err);
     res.status(500).json({ message: 'Internal server error' });
