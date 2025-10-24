@@ -22,12 +22,14 @@ export default function CreateCourse() {
     certificationPreviewUrl: "",
   });
 
+  // API base for this component (used in multiple handlers)
+  const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+
   // Fetch course data in edit mode
   useEffect(() => {
     if (!courseId) return;
-    const token = localStorage.getItem("token");
-  const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
-  fetch(`${API_BASE}/api/admin/courses/${courseId}`, {
+    const token = localStorage.getItem('token');
+    fetch(`${API_BASE}/api/admin/courses/${courseId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

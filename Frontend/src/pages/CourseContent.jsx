@@ -213,6 +213,14 @@ const CourseContent = () => {
     return acc;
   }, {});
 
+  // Toggle module expand/collapse
+  const toggleModule = (moduleName) => {
+    setExpandedModules(prev => ({
+      ...prev,
+      [moduleName]: !prev[moduleName]
+    }));
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#0a0f14] via-[#0a0f14] to-black text-slate-100">
       {/* Course Sidebar (Lessons) */}
@@ -220,7 +228,6 @@ const CourseContent = () => {
         <div className="p-6 border-b border-white/10">
           <h2 className="text-xl font-bold text-slate-100">{courseData?.course?.title}</h2>
           <p className="text-xs text-slate-500 mt-2">Course content</p>
-
           {/* Progress Bar */}
           <div className="mt-4">
             <div className="flex justify-between text-xs mb-1">
@@ -235,7 +242,6 @@ const CourseContent = () => {
             </div>
           </div>
         </div>
-
         {/* Module List */}
         <div className="p-4 space-y-2">
           {Object.entries(modules).map(([moduleName, lessons], moduleIndex) => (
@@ -257,7 +263,6 @@ const CourseContent = () => {
                   <ChevronDownIcon className="w-5 h-5 text-slate-400" />
                 )}
               </button>
-
               {expandedModules[moduleName] && (
                 <div className="ml-4 mr-2 mb-4 space-y-1">
                   {lessons.map(lesson => (
@@ -297,8 +302,7 @@ const CourseContent = () => {
           ))}
         </div>
       </div>
-
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
         {/* Top bar */}
         <div className="sticky top-0 z-10 bg-[#0a0f14]/80 backdrop-blur border-b border-white/10">
@@ -315,7 +319,6 @@ const CourseContent = () => {
             </div>
           </div>
         </div>
-
         {activeContent ? (
           <div className="max-w-5xl mx-auto p-6">
             <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
@@ -342,20 +345,19 @@ const CourseContent = () => {
                   </button>
                 </div>
               </div>
-
               {/* Content Body */}
               <div className="p-6">
-                            {activeContent.file_type === 'video' ? (
-                              <DailymotionPlayer embedUrl={activeContent.embed_url} title={activeContent.lesson_title} />
-                            ) : activeContent.file_type === 'quiz' ? (
-                              <div className="space-y-4">
-                                <QuizView contentId={activeContent.id} onResult={(res) => {
-                                  if (res?.completed) {
-                                    updateProgress(activeContent.id, true);
-                                  }
-                                }} />
-                              </div>
-                            ) : (
+                {activeContent.file_type === 'video' ? (
+                  <DailymotionPlayer embedUrl={activeContent.embed_url} title={activeContent.lesson_title} />
+                ) : activeContent.file_type === 'quiz' ? (
+                  <div className="space-y-4">
+                    <QuizView contentId={activeContent.id} onResult={(res) => {
+                      if (res?.completed) {
+                        updateProgress(activeContent.id, true);
+                      }
+                    }} />
+                  </div>
+                ) : (
                   <div className="space-y-4">
                     {/* PDF Viewer */}
                     <div className="relative w-full rounded-lg overflow-hidden bg-black/30 border border-white/10" style={{ height: '600px' }}>
@@ -370,7 +372,6 @@ const CourseContent = () => {
                   </div>
                 )}
               </div>
-
               {/* Comments Section */}
               <div className="border-t border-white/10 bg-white/5 p-6">
                 <h3 className="text-lg font-semibold text-slate-100 mb-4">Discussion</h3>
@@ -391,7 +392,6 @@ const CourseContent = () => {
                     <span>Post Comment</span>
                   </button>
                 </form>
-
                 <div className="space-y-4">
                   {loadingComments ? (
                     <div className="text-center text-slate-400">Loading comments...</div>
@@ -439,3 +439,11 @@ const CourseContent = () => {
 };
 
 export default CourseContent;
+
+
+
+
+
+
+
+

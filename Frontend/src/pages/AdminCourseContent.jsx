@@ -9,10 +9,57 @@ import {
   TrashIcon,
   ChevronUpIcon,
   ChevronDownIcon,
-  PlusIcon
+  PlusIcon,
+  ArrowUpIcon,
+  ArrowDownIcon
 } from '@heroicons/react/24/outline';
 
+
+
 const AdminCourseContent = () => {
+  // Move module up/down
+  const handleMoveModule = async (moduleName, direction) => {
+    try {
+      const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+      const module = contents.find(m => m.module_name === moduleName);
+      if (!module) return;
+      const response = await fetch(`${API_BASE}/api/admin/courses/${courseId}/modules/${module.module_id}/move`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ direction })
+      });
+      if (!response.ok) throw new Error('Failed to move module');
+      toast.success('Module moved');
+      fetchContents();
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to move module');
+    }
+  };
+
+  // Move topic up/down
+  const handleMoveTopic = async (contentId, direction) => {
+    try {
+      const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+      const response = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents/${contentId}/move`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ direction })
+      });
+      if (!response.ok) throw new Error('Failed to move topic');
+      toast.success('Topic moved');
+      fetchContents();
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to move topic');
+    }
+  };
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [contents, setContents] = useState([]);
@@ -98,21 +145,28 @@ const AdminCourseContent = () => {
             <div className="divide-y divide-white/10">
               {contents.map((module) => (
                 <div key={module.module_name} className="p-4">
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={() => toggleModule(module.module_name)}
-                  >
-                    <h3 className="text-base font-medium text-slate-100">{module.module_name}</h3>
-                    {expandedModules[module.module_name] ? (
-                      <ChevronUpIcon className="w-5 h-5 text-slate-400" />
-                    ) : (
-                      <ChevronDownIcon className="w-5 h-5 text-slate-400" />
-                    )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleModule(module.module_name)}>
+                      <h3 className="text-base font-medium text-slate-100">{module.module_name}</h3>
+                      {expandedModules[module.module_name] ? (
+                        <ChevronUpIcon className="w-5 h-5 text-slate-400" />
+                      ) : (
+                        <ChevronDownIcon className="w-5 h-5 text-slate-400" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button title="Move Up" onClick={() => handleMoveModule(module.module_name, 'up')} className="p-1 rounded hover:bg-emerald-700/30">
+                        <ChevronUpIcon className="w-4 h-4 text-emerald-300" />
+                      </button>
+                      <button title="Move Down" onClick={() => handleMoveModule(module.module_name, 'down')} className="p-1 rounded hover:bg-emerald-700/30">
+                        <ChevronDownIcon className="w-4 h-4 text-emerald-300" />
+                      </button>
+                    </div>
                   </div>
 
                   {expandedModules[module.module_name] && (
                     <div className="mt-3 space-y-3">
-                      {module.contents.map((content) => (
+                      {module.contents.map((content, idx) => (
                         <div
                           key={content.id}
                           className="flex items-center justify-between p-3 bg-black/30 border border-white/10 rounded-lg"
@@ -130,11 +184,16 @@ const AdminCourseContent = () => {
                               </p>
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <button title="Move Up" onClick={() => handleMoveTopic(content.id, 'up')} className="p-1 rounded hover:bg-emerald-700/30">
+                              <ChevronUpIcon className="w-4 h-4 text-emerald-300" />
+                            </button>
+                            <button title="Move Down" onClick={() => handleMoveTopic(content.id, 'down')} className="p-1 rounded hover:bg-emerald-700/30">
+                              <ChevronDownIcon className="w-4 h-4 text-emerald-300" />
+                            </button>
                             <button
                               onClick={() => handleDeleteContent(content.id)}
-                              className="px-3 py-1.5 text-xs rounded bg-red-500/15 text-red-200 border border-red-400/30 hover:bg-red-500/25"
+                              className="px-3 py-1.5 text-xs rounded bg-red-500/15 text-red-200 border border-red-400/30 hover:bg-red-500/25 ml-2"
                             >
                               Delete
                             </button>

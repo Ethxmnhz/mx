@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { apiUrl } from '../lib/api';
 
 export default function QuizView({ contentId, onResult }) {
   const [loading, setLoading] = useState(true);
