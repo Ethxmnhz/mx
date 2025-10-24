@@ -1,7 +1,16 @@
+
 import { Router } from "express";
-import {createCourse, upload, deleteCourse, editCourse, getCourses, getCourseById, uploadCourseContent,getCourseContents,deleteCourseContent, getDashboardStats, listEnrollmentsByCourse, revokeEnrollment}  from "../controllers/Admin.controller.js"
+import {
+	createCourse, upload, deleteCourse, editCourse, getCourses, getCourseById, uploadCourseContent, getCourseContents, deleteCourseContent, getDashboardStats, listEnrollmentsByCourse, revokeEnrollment,
+	moveModule, moveTopic
+} from "../controllers/Admin.controller.js";
 
 const router = Router();
+
+// Move module order
+router.put('/courses/:courseId/modules/:moduleId/move', moveModule);
+// Move topic/lesson order
+router.put('/courses/:courseId/contents/:contentId/move', moveTopic);
 
 // Accept both thumbnail and certification preview images
 router.post(

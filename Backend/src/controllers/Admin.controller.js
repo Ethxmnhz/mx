@@ -1,3 +1,120 @@
+// Move module up/down
+export const moveModule = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return res.status(401).json({ message: 'Invalid token' });
+    const { data: userRecord } = await supabaseAdmin
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+    if (!userRecord?.is_admin) return res.status(403).json({ message: 'Forbidden' });
+
+    const { courseId, moduleId } = req.params;
+    const { direction } = req.body; // 'up' or 'down'
+
+    // Get all modules for the course, ordered
+    const { data: modules, error } = await supabaseAdmin
+      .from('course_contents')
+      .select('module_id, module_name, module_order')
+      .eq('course_id', courseId)
+      .order('module_order', { ascending: true });
+    if (error) return res.status(500).json({ message: 'Failed to fetch modules' });
+
+    // Find unique modules by module_id
+    const uniqueModules = Array.from(
+      modules.reduce((map, m) => map.set(m.module_id, m), new Map()).values()
+    );
+    const idx = uniqueModules.findIndex(m => String(m.module_id) === String(moduleId));
+    if (idx === -1) return res.status(404).json({ message: 'Module not found' });
+
+    let swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= uniqueModules.length) {
+      return res.status(400).json({ message: 'Cannot move module further' });
+    }
+    const current = uniqueModules[idx];
+    const swapWith = uniqueModules[swapIdx];
+
+    // Swap module_order for all contents in both modules
+    await Promise.all([
+      supabaseAdmin.from('course_contents')
+        .update({ module_order: swapWith.module_order })
+        .eq('course_id', courseId)
+        .eq('module_id', current.module_id),
+      supabaseAdmin.from('course_contents')
+        .update({ module_order: current.module_order })
+        .eq('course_id', courseId)
+        .eq('module_id', swapWith.module_id)
+    ]);
+
+    res.json({ message: 'Module moved' });
+  } catch (err) {
+    console.error('moveModule error:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Move topic/lesson up/down
+export const moveTopic = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return res.status(401).json({ message: 'Invalid token' });
+    const { data: userRecord } = await supabaseAdmin
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+    if (!userRecord?.is_admin) return res.status(403).json({ message: 'Forbidden' });
+
+    const { courseId, contentId } = req.params;
+    const { direction } = req.body; // 'up' or 'down'
+
+    // Get the current topic
+    const { data: current, error: fetchError } = await supabaseAdmin
+      .from('course_contents')
+      .select('id, module_id, module_order, order_number')
+      .eq('id', contentId)
+      .single();
+    if (fetchError || !current) return res.status(404).json({ message: 'Topic not found' });
+
+    // Get all topics in the same module, ordered
+    const { data: topics, error: topicsError } = await supabaseAdmin
+      .from('course_contents')
+      .select('id, order_number')
+      .eq('course_id', courseId)
+      .eq('module_id', current.module_id)
+      .order('order_number', { ascending: true });
+    if (topicsError) return res.status(500).json({ message: 'Failed to fetch topics' });
+
+    const idx = topics.findIndex(t => String(t.id) === String(contentId));
+    if (idx === -1) return res.status(404).json({ message: 'Topic not found in module' });
+
+    let swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= topics.length) {
+      return res.status(400).json({ message: 'Cannot move topic further' });
+    }
+    const swapWith = topics[swapIdx];
+
+    // Swap order_number
+    await Promise.all([
+      supabaseAdmin.from('course_contents')
+        .update({ order_number: swapWith.order_number })
+        .eq('id', current.id),
+      supabaseAdmin.from('course_contents')
+        .update({ order_number: current.order_number })
+        .eq('id', swapWith.id)
+    ]);
+
+    res.json({ message: 'Topic moved' });
+  } catch (err) {
+    console.error('moveTopic error:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 import { connectSupabase, connectSupabaseAdmin } from "../db/supabaseClient.js";
 import multer from "multer";
 
