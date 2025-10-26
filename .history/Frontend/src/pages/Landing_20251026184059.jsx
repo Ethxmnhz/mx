@@ -34,7 +34,7 @@ export default function Landing() {
           >
             {Array.from({ length: 8 }).map((_, i) => (
               <span key={i} className="text-xs md:text-sm text-emerald-200/90">
-                New certification launched: MJPT – MaxSec Junior Penetration Tester.
+                New certification louched
               </span>
             ))}
           </div>
@@ -46,10 +46,10 @@ export default function Landing() {
       <header className="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <BrandLogo
-            size={52}
-            withTagline={false}
-            showWordmark={false}
-            plain={true}
+            size={50}
+            withTagline={true}
+            taglineText="Managed by HackoSquad"
+            showWordmark={true}
           />
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -80,7 +80,13 @@ export default function Landing() {
           <img
             src="/logo.png"
             alt="MaxSec Academy Logo"
-            className="mx-auto mb-6 rounded-2xl object-contain w-56 sm:w-64 md:w-72 h-auto"
+            className="mx-auto mb-6"
+            style={{
+              width: 220,
+              height: 220,
+              borderRadius: "24px",
+              objectFit: "contain",
+            }}
           />
           <h1 className="mt-6 text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight">
             Applied Cybersecurity Training and Certification.

@@ -20,36 +20,14 @@ export default function Landing() {
       <div className="fixed inset-0 -z-10 aurora" aria-hidden></div>
       <div className="fixed inset-0 -z-10 spotlight" aria-hidden></div>
 
-      {/* Top Banner: New certification launched */}
-      <div className="bg-[#120F18]/80 border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-2 overflow-hidden">
-          <div
-            className="whitespace-nowrap select-none"
-            style={{
-              display: 'flex',
-              gap: '3rem',
-              animation: 'marquee 22s linear infinite',
-              willChange: 'transform',
-            }}
-          >
-            {Array.from({ length: 8 }).map((_, i) => (
-              <span key={i} className="text-xs md:text-sm text-emerald-200/90">
-                New certification launched: MJPT – MaxSec Junior Penetration Tester.
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-      <style>{`@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`}</style>
-
       {/* Header */}
       <header className="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <BrandLogo
-            size={52}
-            withTagline={false}
-            showWordmark={false}
-            plain={true}
+            size={50}
+            withTagline={true}
+            taglineText="Managed by HackoSquad"
+            showWordmark={true}
           />
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -76,11 +54,17 @@ export default function Landing() {
 
       {/* Hero Section */}
       <main>
-  <section className="mx-auto max-w-5xl px-6 pt-20 pb-16 text-center">
+        <section className="mx-auto max-w-5xl px-6 pt-20 pb-16 text-center">
           <img
             src="/logo.png"
             alt="MaxSec Academy Logo"
-            className="mx-auto mb-6 rounded-2xl object-contain w-56 sm:w-64 md:w-72 h-auto"
+            className="mx-auto mb-6"
+            style={{
+              width: 220,
+              height: 220,
+              borderRadius: "24px",
+              objectFit: "contain",
+            }}
           />
           <h1 className="mt-6 text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight">
             Applied Cybersecurity Training and Certification.
@@ -92,16 +76,16 @@ export default function Landing() {
 
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="#programs"
+              to="/signup"
               className="px-6 py-3 rounded-lg bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 font-semibold"
             >
-              Explore Programs
+              Get your voucher now
             </Link>
             <Link
-              to="/contact"
+              to="/mjpt"
               className="px-6 py-3 rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 font-semibold"
             >
-              Contact Us
+              Explore MJPT
             </Link>
           </div>
 
@@ -110,13 +94,13 @@ export default function Landing() {
             <img
               src="/ptlogo.png"
               alt="HackoSquad Partner Logo"
-              className="h-24 md:h-28 opacity-90 hover:opacity-100 transition object-contain"
+              className="h-14 opacity-90 hover:opacity-100 transition"
               title="Powered by HackoSquad"
             />
           </div>
         </section>
 
-  {/* Highlights */}
+        {/* Highlights */}
         <section className="mx-auto max-w-6xl px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 text-center sm:text-left">
           {[
             {
@@ -167,81 +151,32 @@ export default function Landing() {
           ))}
         </section>
 
-        {/* About */}
-        <section className="mx-auto max-w-6xl px-6 py-12 border-t border-white/10">
-          <div className="grid md:grid-cols-3 gap-8 items-start">
-            <div className="md:col-span-2">
-              <h2 className="text-2xl font-bold mb-2">About MaxSec</h2>
-              <p className="text-slate-400 text-sm leading-relaxed max-w-3xl">
-                MaxSec delivers applied cybersecurity training and practical certification. Managed by
-                <span className="text-emerald-300"> HackoSquad</span>, we focus on real capability, measured performance, and
-                verifiable outcomes.
+        {/* Program Spotlight */}
+        <section className="mx-auto max-w-6xl px-6 py-14">
+          <div className="grid md:grid-cols-2 gap-8 items-center rounded-2xl bg-[#120F18] p-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold">
+                <AcademicCapIcon className="h-4 w-4" /> MJPT • MaxSec Junior Penetration Tester
+              </div>
+              <h3 className="mt-3 text-2xl font-bold">24‑Hour, Report‑Based Practical Certification</h3>
+              <p className="mt-3 text-slate-300 max-w-xl">
+                Assess two targets (Linux & Windows) and submit a professional report within 24 hours.
               </p>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-slate-400">
-              <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10">Managed by HackoSquad</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Programs */}
-        <section id="programs" className="mx-auto max-w-6xl px-6 py-14">
-          <h2 className="text-2xl font-bold mb-6">Programs</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* MJPT - larger card with icon */}
-            <div className="rounded-2xl bg-[#120F18] p-6 md:p-8">
-              <div className="grid md:grid-cols-2 gap-6 items-center min-h-[340px]">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max">
-                    <AcademicCapIcon className="h-4 w-4" /> MJPT
-                  </div>
-                  <h3 className="mt-3 text-2xl font-bold">24‑Hour Practical Exam</h3>
-                  <p className="mt-2 text-slate-300 text-sm">Two targets (Linux & Windows). Report‑based submission.</p>
-                  <ul className="mt-3 text-slate-300 text-sm list-disc ml-5 space-y-1">
-                    <li>Evidence‑driven assessment</li>
-                    <li>Voucher‑based access</li>
-                    <li>Verifiable certificate</li>
-                  </ul>
-                  <div className="mt-5 flex gap-3">
-                    <Link to="/signup" className="px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold">Get your voucher now</Link>
-                    <Link to="/mjpt" className="px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold">Learn more</Link>
-                  </div>
-                </div>
-                <div className="relative">
-                  <div className="absolute -inset-6 -z-10 blur-2xl opacity-70" aria-hidden>
-                    <div className="h-full w-full bg-[radial-gradient(circle_at_60%_50%,#120F18_0%,transparent_60%)]" />
-                  </div>
-                  <img src="/icon.png" alt="MJPT Icon" className="w-full max-h-[300px] md:max-h-[360px] object-contain ml-auto" onError={(e)=>{e.currentTarget.onerror=null; e.currentTarget.src='/logo.png'}} />
-                </div>
+              <ul className="mt-3 text-slate-300 text-sm list-disc ml-5 space-y-1 max-w-xl">
+                <li>Evidence‑driven assessment</li>
+                <li>Voucher‑based access</li>
+                <li>Verifiable certificate</li>
+              </ul>
+              <div className="mt-5 flex gap-3">
+                <Link to="/signup" className="px-5 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold">Get your voucher now</Link>
+                <Link to="/mjpt" className="px-5 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold">Explore MJPT</Link>
               </div>
             </div>
-
-            {/* Corporate / Custom Training - larger card with icon */}
-            <div className="rounded-2xl bg-[#120F18] p-6 md:p-8">
-              <div className="grid md:grid-cols-2 gap-6 items-center min-h-[340px]">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max">
-                    <UsersIcon className="h-4 w-4" /> Corporate / Custom Training
-                  </div>
-                  <h3 className="mt-3 text-2xl font-bold">Team‑Ready, Tailored Programs</h3>
-                  <p className="mt-2 text-slate-300 text-sm">Custom curricula for companies and institutions.</p>
-                  <ul className="mt-3 text-slate-300 text-sm list-disc ml-5 space-y-1">
-                    <li>Role‑based learning paths</li>
-                    <li>Onsite or remote delivery</li>
-                    <li>Hands‑on labs and reporting</li>
-                  </ul>
-                  <div className="mt-5 flex gap-3">
-                    <Link to="/contact" className="px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold">Contact sales</Link>
-                    <Link to="/about" className="px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold">Learn more</Link>
-                  </div>
-                </div>
-                <div className="relative">
-                  <div className="absolute -inset-6 -z-10 blur-2xl opacity-70" aria-hidden>
-                    <div className="h-full w-full bg-[radial-gradient(circle_at_60%_50%,#120F18_0%,transparent_60%)]" />
-                  </div>
-                  <img src="/corporate.png" alt="Corporate training" className="w-full max-h-[300px] md:max-h-[360px] object-contain ml-auto" />
-                </div>
+            <div className="relative">
+              <div className="absolute -inset-6 -z-10 blur-2xl opacity-70" aria-hidden>
+                <div className="h-full w-full bg-[radial-gradient(circle_at_60%_50%,#120F18_0%,transparent_60%)]" />
               </div>
+              <img src="/icon.png" alt="MJPT Icon" className="w-full max-h-[420px] md:max-h-[520px] object-contain ml-auto" onError={(e)=>{e.currentTarget.onerror=null; e.currentTarget.src='/logo.png'}} />
             </div>
           </div>
         </section>
@@ -274,7 +209,7 @@ export default function Landing() {
             to="/signup"
             className="inline-block px-8 py-3 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-100 font-semibold hover:bg-emerald-500/30"
           >
-            Create account
+            Get your voucher now
           </Link>
         </section>
       </main>

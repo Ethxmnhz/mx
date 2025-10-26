@@ -46,10 +46,10 @@ export default function Landing() {
       <header className="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <BrandLogo
-            size={52}
-            withTagline={false}
-            showWordmark={false}
-            plain={true}
+            size={50}
+            withTagline={true}
+            taglineText="Managed by HackoSquad"
+            showWordmark={true}
           />
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm">

@@ -34,7 +34,7 @@ export default function Landing() {
           >
             {Array.from({ length: 8 }).map((_, i) => (
               <span key={i} className="text-xs md:text-sm text-emerald-200/90">
-                New certification launched: MJPT – MaxSec Junior Penetration Tester.
+                New certification louched
               </span>
             ))}
           </div>
@@ -46,10 +46,10 @@ export default function Landing() {
       <header className="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <BrandLogo
-            size={52}
-            withTagline={false}
-            showWordmark={false}
-            plain={true}
+            size={50}
+            withTagline={true}
+            taglineText="Managed by HackoSquad"
+            showWordmark={true}
           />
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -80,7 +80,13 @@ export default function Landing() {
           <img
             src="/logo.png"
             alt="MaxSec Academy Logo"
-            className="mx-auto mb-6 rounded-2xl object-contain w-56 sm:w-64 md:w-72 h-auto"
+            className="mx-auto mb-6"
+            style={{
+              width: 220,
+              height: 220,
+              borderRadius: "24px",
+              objectFit: "contain",
+            }}
           />
           <h1 className="mt-6 text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight">
             Applied Cybersecurity Training and Certification.
@@ -216,30 +222,30 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Corporate / Custom Training - larger card with icon */}
+            {/* Certification - larger card with certificate */}
             <div className="rounded-2xl bg-[#120F18] p-6 md:p-8">
               <div className="grid md:grid-cols-2 gap-6 items-center min-h-[340px]">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max">
-                    <UsersIcon className="h-4 w-4" /> Corporate / Custom Training
+                    <ShieldCheckIcon className="h-4 w-4" /> Certification
                   </div>
-                  <h3 className="mt-3 text-2xl font-bold">Team‑Ready, Tailored Programs</h3>
-                  <p className="mt-2 text-slate-300 text-sm">Custom curricula for companies and institutions.</p>
+                  <h3 className="mt-3 text-2xl font-bold">Practical, Evidence‑Backed</h3>
+                  <p className="mt-2 text-slate-300 text-sm">Assessment, professional reporting, verifiable credential.</p>
                   <ul className="mt-3 text-slate-300 text-sm list-disc ml-5 space-y-1">
-                    <li>Role‑based learning paths</li>
-                    <li>Onsite or remote delivery</li>
-                    <li>Hands‑on labs and reporting</li>
+                    <li>24‑hour assessment</li>
+                    <li>Two targets</li>
+                    <li>Professional report</li>
                   </ul>
                   <div className="mt-5 flex gap-3">
-                    <Link to="/contact" className="px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold">Contact sales</Link>
-                    <Link to="/about" className="px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold">Learn more</Link>
+                    <Link to="/signup" className="px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold">Get your voucher now</Link>
+                    <Link to="/certification" className="px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold">Learn more</Link>
                   </div>
                 </div>
                 <div className="relative">
                   <div className="absolute -inset-6 -z-10 blur-2xl opacity-70" aria-hidden>
                     <div className="h-full w-full bg-[radial-gradient(circle_at_60%_50%,#120F18_0%,transparent_60%)]" />
                   </div>
-                  <img src="/corporate.png" alt="Corporate training" className="w-full max-h-[300px] md:max-h-[360px] object-contain ml-auto" />
+                  <img src="/certificate.png" alt="Certification certificate" className="w-full max-h-[300px] md:max-h-[360px] object-contain ml-auto" />
                 </div>
               </div>
             </div>
