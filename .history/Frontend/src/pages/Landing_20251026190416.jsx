@@ -189,7 +189,7 @@ export default function Landing() {
           <h2 className="text-2xl font-bold mb-6">Programs</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* MJPT - larger card with icon */}
-            <div className="rounded-2xl bg-[#120F18] p-6 md:p-8">
+            <div className="rounded-2xl bg-[#100B15] p-6 md:p-8">
               <div className="grid md:grid-cols-2 gap-6 items-center min-h-[340px]">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max">
