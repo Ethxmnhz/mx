@@ -135,6 +135,7 @@ export const moveTopic = async (req, res) => {
 };
 import { connectSupabase, connectSupabaseAdmin } from "../db/supabaseClient.js";
 import multer from "multer";
+import { randomUUID } from 'crypto';
 
 const supabase = connectSupabase();
 const supabaseAdmin = connectSupabaseAdmin();
@@ -775,6 +776,44 @@ const uploadCourseContent = async (req, res) => {
       }
     } else {
       return res.status(400).json({ message: 'No content provided (video URL, quiz, or file required)' });
+    }
+
+    // Ensure module_id exists (DB has NOT NULL constraint on module_id)
+    try {
+      if (!contentData.module_id) {
+        // Try to find an existing module_id for this course/module_name
+        const { data: existingModule } = await supabaseAdmin
+          .from('course_contents')
+          .select('module_id, module_order')
+          .eq('course_id', courseId)
+          .eq('module_name', module_name)
+          .limit(1)
+          .maybeSingle();
+
+        if (existingModule && existingModule.module_id) {
+          contentData.module_id = existingModule.module_id;
+          // If module_order not provided, reuse existing module_order
+          if (!contentData.module_order || contentData.module_order === 0) {
+            contentData.module_order = existingModule.module_order || 0;
+          }
+        } else {
+          // Create a new module_id and pick a module_order (max + 1)
+          const { data: maxRow } = await supabaseAdmin
+            .from('course_contents')
+            .select('module_order')
+            .eq('course_id', courseId)
+            .order('module_order', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          const maxOrder = maxRow?.module_order ?? -1;
+          contentData.module_id = randomUUID();
+          if (!contentData.module_order || contentData.module_order === 0) {
+            contentData.module_order = maxOrder + 1;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error resolving module_id:', e);
     }
 
     // Insert content
