@@ -732,6 +732,12 @@ const uploadCourseContent = async (req, res) => {
     // Handle file upload
     else if (req.file) {
       try {
+        console.log('uploadCourseContent: received file upload', {
+          originalname: req.file.originalname,
+          mimetype: req.file.mimetype,
+          size: req.file.size,
+          courseId
+        });
         const safeName = String(req.file.originalname || 'file')
           .replace(/[^a-zA-Z0-9._-]/g, '_')
           .slice(0, 100);
@@ -751,10 +757,12 @@ const uploadCourseContent = async (req, res) => {
           });
         }
 
-        const { data: { publicUrl } } = supabaseAdmin.storage
+        // Safely read public URL (different SDK versions return slightly different shapes)
+        const publicRes = supabaseAdmin.storage
           .from('course-content')
           .getPublicUrl(fileName);
-
+        const publicUrl = (publicRes && publicRes.data && (publicRes.data.publicUrl || publicRes.data.public_url)) || publicRes?.publicUrl || null;
+        console.log('uploadCourseContent: publicUrl resolved', { publicUrl, publicRes });
         contentData.file_url = publicUrl;
         contentData.file_type = req.file.mimetype.includes('video') ? 'video' : 'pdf';
         contentData.embed_url = null; // Clear embed_url for uploaded files
