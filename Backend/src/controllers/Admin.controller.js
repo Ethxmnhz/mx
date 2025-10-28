@@ -778,6 +778,7 @@ const uploadCourseContent = async (req, res) => {
     }
 
     // Insert content
+    console.log('uploadCourseContent: inserting contentData', JSON.stringify(contentData));
     const { data: content, error: contentError } = await supabaseAdmin
       .from('course_contents')
       .insert(contentData)
@@ -786,7 +787,8 @@ const uploadCourseContent = async (req, res) => {
 
     if (contentError) {
       console.error('Content insert error:', contentError);
-      return res.status(500).json({ message: 'Failed to create content' });
+      // Return error details for debugging (remove in production)
+      return res.status(500).json({ message: 'Failed to create content', details: contentError?.message || contentError, payload: contentData });
     }
 
     res.status(201).json(content);
