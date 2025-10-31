@@ -1131,10 +1131,99 @@ export const updateContent = async (req, res) => {
     if (!userRecord?.is_admin) return res.status(403).json({ message: 'Forbidden' });
 
     const { courseId, contentId } = req.params;
+    // Fetch existing content to know previous file_url/module/etc
+    const { data: existing, error: fetchErr } = await supabaseAdmin
+      .from('course_contents')
+      .select('*')
+      .eq('id', contentId)
+      .single();
+    if (fetchErr || !existing) return res.status(404).json({ message: 'Content not found' });
+
     const updates = {};
-    const { lesson_title, is_preview } = req.body;
+    // Support both form-data and json bodies
+    const lesson_title = req.body.lesson_title ?? req.body.lessonTitle;
+    const is_preview = typeof req.body.is_preview !== 'undefined' ? req.body.is_preview : req.body.isPreview;
+    const embed_url = req.body.embed_url ?? req.body.embedUrl;
+    const quiz = req.body.quiz ?? req.body.quiz;
+
     if (typeof lesson_title === 'string') updates.lesson_title = lesson_title.trim();
-    if (typeof is_preview !== 'undefined') updates.is_preview = is_preview === 'true' || is_preview === true;
+    if (typeof is_preview !== 'undefined') updates.is_preview = (is_preview === 'true' || is_preview === true);
+
+    // Handle embed_url (Dailymotion) => normalize to embedded URL
+    if (typeof embed_url === 'string') {
+      const url = embed_url.trim();
+      if (url) {
+        // try to extract ID similar to uploadCourseContent
+        let cleanId = url;
+        if (/dailymotion\.com\/video\//i.test(url)) {
+          cleanId = url.split('/video/')[1] || url;
+        } else if (/dai\.ly\//i.test(url)) {
+          cleanId = url.split('dai.ly/')[1] || url;
+        }
+        cleanId = cleanId.split(/[\?_]/)[0];
+        updates.embed_url = `https://www.dailymotion.com/embed/video/${cleanId}`;
+        updates.file_type = 'video';
+        updates.file_url = null; // clear uploaded file if switching to embed
+      }
+    }
+
+    // Handle quiz JSON
+    if (typeof quiz === 'string' && quiz.trim()) {
+      try {
+        const parsed = JSON.parse(quiz);
+        updates.quiz = parsed;
+        updates.file_type = 'quiz';
+        updates.embed_url = null;
+        updates.file_url = null;
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid quiz JSON' });
+      }
+    }
+
+    // Handle file replacement (multipart middleware puts file into req.file)
+    if (req.file) {
+      try {
+        // Upload to 'course-content' bucket
+        const bucket = 'course-content';
+        const fileExt = (req.file.originalname || '').split('.').pop();
+        const fileName = `${bucket}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { error: uploadError } = await supabaseAdmin.storage
+          .from(bucket)
+          .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: false });
+
+        if (uploadError) {
+          // try create bucket and retry
+          if (/not found|does not exist|No such file or directory/i.test(uploadError.message || '')) {
+            try { await supabaseAdmin.storage.createBucket(bucket, { public: true }); } catch (e) { console.error('Bucket create failed:', e); }
+            const { error: retryErr } = await supabaseAdmin.storage.from(bucket).upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: false });
+            if (retryErr) throw retryErr;
+          } else {
+            throw uploadError;
+          }
+        }
+
+        const { data: publicUrlData } = supabaseAdmin.storage.from(bucket).getPublicUrl(fileName);
+        const publicUrl = publicUrlData?.publicUrl;
+        updates.file_url = publicUrl;
+        updates.file_type = req.file.mimetype.includes('video') ? 'video' : 'pdf';
+        updates.embed_url = null; // clear embed when uploading file
+
+        // Delete previous file if existed and was in storage
+        if (existing?.file_url) {
+          try {
+            const filePathMatch = existing.file_url.match(/course-content\/(.+)/);
+            if (filePathMatch && filePathMatch[1]) {
+              await supabaseAdmin.storage.from(bucket).remove([filePathMatch[1]]);
+            }
+          } catch (e) {
+            console.warn('Failed to delete previous file:', e?.message || e);
+          }
+        }
+      } catch (e) {
+        console.error('File upload failed:', e);
+        return res.status(500).json({ message: 'Failed to upload file', details: e?.message });
+      }
+    }
 
     if (Object.keys(updates).length === 0) return res.status(400).json({ message: 'No valid fields to update' });
 
