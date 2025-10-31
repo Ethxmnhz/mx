@@ -135,7 +135,6 @@ export const moveTopic = async (req, res) => {
 };
 import { connectSupabase, connectSupabaseAdmin } from "../db/supabaseClient.js";
 import multer from "multer";
-import { randomUUID } from 'crypto';
 
 const supabase = connectSupabase();
 const supabaseAdmin = connectSupabaseAdmin();
@@ -778,44 +777,6 @@ const uploadCourseContent = async (req, res) => {
       return res.status(400).json({ message: 'No content provided (video URL, quiz, or file required)' });
     }
 
-    // Ensure module_id exists (DB has NOT NULL constraint on module_id)
-    try {
-      if (!contentData.module_id) {
-        // Try to find an existing module_id for this course/module_name
-        const { data: existingModule } = await supabaseAdmin
-          .from('course_contents')
-          .select('module_id, module_order')
-          .eq('course_id', courseId)
-          .eq('module_name', module_name)
-          .limit(1)
-          .maybeSingle();
-
-        if (existingModule && existingModule.module_id) {
-          contentData.module_id = existingModule.module_id;
-          // If module_order not provided, reuse existing module_order
-          if (!contentData.module_order || contentData.module_order === 0) {
-            contentData.module_order = existingModule.module_order || 0;
-          }
-        } else {
-          // Create a new module_id and pick a module_order (max + 1)
-          const { data: maxRow } = await supabaseAdmin
-            .from('course_contents')
-            .select('module_order')
-            .eq('course_id', courseId)
-            .order('module_order', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          const maxOrder = maxRow?.module_order ?? -1;
-          contentData.module_id = randomUUID();
-          if (!contentData.module_order || contentData.module_order === 0) {
-            contentData.module_order = maxOrder + 1;
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Error resolving module_id:', e);
-    }
-
     // Insert content
     console.log('uploadCourseContent: inserting contentData', JSON.stringify(contentData));
     const { data: content, error: contentError } = await supabaseAdmin
@@ -1077,82 +1038,5 @@ const revokeEnrollment = async (req, res) => {
   } catch (err) {
     console.error('revokeEnrollment error:', err);
     res.status(500).json({ message: 'Failed to revoke enrollment' });
-  }
-};
-// Update module name
-export const updateModuleName = async (req, res) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'Unauthorized' });
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return res.status(401).json({ message: 'Invalid token' });
-    const { data: userRecord } = await supabaseAdmin
-      .from('users')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-    if (!userRecord?.is_admin) return res.status(403).json({ message: 'Forbidden' });
-
-    const { courseId, moduleId } = req.params;
-    const { module_name } = req.body;
-    if (!module_name || !String(module_name).trim()) return res.status(400).json({ message: 'module_name is required' });
-
-    // Update all contents that belong to this module_id for the course
-    const { error } = await supabaseAdmin
-      .from('course_contents')
-      .update({ module_name: module_name.trim() })
-      .eq('course_id', courseId)
-      .eq('module_id', moduleId);
-
-    if (error) {
-      console.error('updateModuleName error:', error);
-      return res.status(500).json({ message: 'Failed to update module name' });
-    }
-
-    res.json({ message: 'Module name updated' });
-  } catch (err) {
-    console.error('updateModuleName exception:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-// Update content metadata (title, is_preview)
-export const updateContent = async (req, res) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'Unauthorized' });
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return res.status(401).json({ message: 'Invalid token' });
-    const { data: userRecord } = await supabaseAdmin
-      .from('users')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-    if (!userRecord?.is_admin) return res.status(403).json({ message: 'Forbidden' });
-
-    const { courseId, contentId } = req.params;
-    const updates = {};
-    const { lesson_title, is_preview } = req.body;
-    if (typeof lesson_title === 'string') updates.lesson_title = lesson_title.trim();
-    if (typeof is_preview !== 'undefined') updates.is_preview = is_preview === 'true' || is_preview === true;
-
-    if (Object.keys(updates).length === 0) return res.status(400).json({ message: 'No valid fields to update' });
-
-    const { data, error } = await supabaseAdmin
-      .from('course_contents')
-      .update(updates)
-      .eq('id', contentId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('updateContent error:', error);
-      return res.status(500).json({ message: 'Failed to update content' });
-    }
-
-    res.json({ message: 'Content updated', content: data });
-  } catch (err) {
-    console.error('updateContent exception:', err);
-    res.status(500).json({ message: 'Internal server error' });
   }
 };

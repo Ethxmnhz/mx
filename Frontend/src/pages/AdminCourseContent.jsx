@@ -65,6 +65,11 @@ const AdminCourseContent = () => {
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState({});
+  const [editingModule, setEditingModule] = useState(null); // module_name
+  const [moduleEditValue, setModuleEditValue] = useState('');
+  const [editingContent, setEditingContent] = useState(null); // content id
+  const [contentEditValue, setContentEditValue] = useState('');
+  const [contentEditPreview, setContentEditPreview] = useState(false);
 
   // Fetch course contents
   useEffect(() => {
@@ -146,13 +151,46 @@ const AdminCourseContent = () => {
               {[...contents].sort((a, b) => (a.module_order ?? 0) - (b.module_order ?? 0)).map((module, i) => (
                 <div key={module.module_name} className="p-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleModule(module.module_name)}>
-                      <span className="text-xs text-slate-400 mr-1">#{module.module_order ?? i + 1}</span>
-                      <h3 className="text-base font-medium text-slate-100">{module.module_name}</h3>
-                      {expandedModules[module.module_name] ? (
-                        <ChevronUpIcon className="w-5 h-5 text-slate-400" />
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleModule(module.module_name)}>
+                        <span className="text-xs text-slate-400 mr-1">#{module.module_order ?? i + 1}</span>
+                        {editingModule === module.module_name ? (
+                          <input value={moduleEditValue} onChange={(e) => setModuleEditValue(e.target.value)} className="bg-black/20 p-1 rounded text-slate-100" />
+                        ) : (
+                          <h3 className="text-base font-medium text-slate-100">{module.module_name}</h3>
+                        )}
+                        {expandedModules[module.module_name] ? (
+                          <ChevronUpIcon className="w-5 h-5 text-slate-400" />
+                        ) : (
+                          <ChevronDownIcon className="w-5 h-5 text-slate-400" />
+                        )}
+                      </div>
+                      {editingModule === module.module_name ? (
+                        <div className="flex items-center gap-2 ml-2">
+                          <button onClick={async () => {
+                            try {
+                              const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+                              const moduleRec = contents.find(m => m.module_name === module.module_name);
+                              if (!moduleRec) throw new Error('Module not found');
+                              const token = localStorage.getItem('token');
+                              const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/modules/${moduleRec.module_id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                body: JSON.stringify({ module_name: moduleEditValue })
+                              });
+                              if (!res.ok) throw new Error('Failed to update module');
+                              toast.success('Module name updated');
+                              setEditingModule(null);
+                              fetchContents();
+                            } catch (err) {
+                              console.error(err);
+                              toast.error('Failed to update module');
+                            }
+                          }} className="text-emerald-300 px-2 py-1 rounded bg-emerald-600/10">Save</button>
+                          <button onClick={() => { setEditingModule(null); setModuleEditValue(''); }} className="px-2 py-1 rounded bg-white/5">Cancel</button>
+                        </div>
                       ) : (
-                        <ChevronDownIcon className="w-5 h-5 text-slate-400" />
+                        <button onClick={() => { setEditingModule(module.module_name); setModuleEditValue(module.module_name); }} className="text-slate-400 ml-2 hover:text-slate-200">Edit</button>
                       )}
                     </div>
                     <div className="flex items-center gap-1">
@@ -179,10 +217,17 @@ const AdminCourseContent = () => {
                               <DocumentIcon className="w-5 h-5 text-emerald-300" />
                             )}
                             <div>
-                              <p className="font-medium text-slate-100">{content.lesson_title}</p>
-                              <p className="text-xs text-slate-500">
-                                {content.file_type} {content.is_preview && '• Preview'}
-                              </p>
+                              {editingContent === content.id ? (
+                                <div className="flex flex-col">
+                                  <input className="p-1 bg-black/20 rounded text-slate-100" value={contentEditValue} onChange={(e) => setContentEditValue(e.target.value)} />
+                                  <label className="text-xs text-slate-400 mt-1"><input type="checkbox" checked={contentEditPreview} onChange={(e) => setContentEditPreview(e.target.checked)} className="mr-1"/> Preview</label>
+                                </div>
+                              ) : (
+                                <>
+                                  <p className="font-medium text-slate-100">{content.lesson_title}</p>
+                                  <p className="text-xs text-slate-500">{content.file_type} {content.is_preview && '• Preview'}</p>
+                                </>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-1">
@@ -192,12 +237,39 @@ const AdminCourseContent = () => {
                             <button title="Move Down" onClick={() => handleMoveTopic(content.id, 'down')} className="p-1 rounded hover:bg-emerald-700/30">
                               <ChevronDownIcon className="w-4 h-4 text-emerald-300" />
                             </button>
-                            <button
-                              onClick={() => handleDeleteContent(content.id)}
-                              className="px-3 py-1.5 text-xs rounded bg-red-500/15 text-red-200 border border-red-400/30 hover:bg-red-500/25 ml-2"
-                            >
-                              Delete
-                            </button>
+                            {editingContent === content.id ? (
+                              <>
+                                <button onClick={async () => {
+                                  try {
+                                    const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+                                    const token = localStorage.getItem('token');
+                                    const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents/${content.id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                      body: JSON.stringify({ lesson_title: contentEditValue, is_preview: contentEditPreview })
+                                    });
+                                    if (!res.ok) throw new Error('Failed to update content');
+                                    toast.success('Content updated');
+                                    setEditingContent(null);
+                                    fetchContents();
+                                  } catch (err) {
+                                    console.error(err);
+                                    toast.error('Failed to update content');
+                                  }
+                                }} className="px-3 py-1.5 text-xs rounded bg-emerald-500/15 text-emerald-200 border border-emerald-400/30 hover:bg-emerald-500/25 ml-2">Save</button>
+                                <button onClick={() => { setEditingContent(null); setContentEditValue(''); setContentEditPreview(false); }} className="px-3 py-1.5 text-xs rounded bg-white/5 ml-2">Cancel</button>
+                              </>
+                            ) : (
+                              <>
+                                <button onClick={() => { setEditingContent(content.id); setContentEditValue(content.lesson_title); setContentEditPreview(!!content.is_preview); }} className="px-3 py-1.5 text-xs rounded bg-emerald-500/15 text-emerald-200 border border-emerald-400/30 hover:bg-emerald-500/25 ml-2">Edit</button>
+                                <button
+                                  onClick={() => handleDeleteContent(content.id)}
+                                  className="px-3 py-1.5 text-xs rounded bg-red-500/15 text-red-200 border border-red-400/30 hover:bg-red-500/25 ml-2"
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                       ))}

@@ -11,6 +11,10 @@ const router = Router();
 router.put('/courses/:courseId/modules/:moduleId/move', moveModule);
 // Move topic/lesson order
 router.put('/courses/:courseId/contents/:contentId/move', moveTopic);
+// Update module name
+router.put('/courses/:courseId/modules/:moduleId', updateModuleName);
+// Update content metadata (title / preview)
+router.put('/courses/:courseId/contents/:contentId', updateContent);
 
 // Accept both thumbnail and certification preview images
 router.post(
