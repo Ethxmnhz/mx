@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import AdminLayout from '../components/AdminLayout';
+import QuizBuilder from '../components/QuizBuilder';
 import {
   PlayIcon,
   DocumentIcon,
@@ -70,6 +71,10 @@ const AdminCourseContent = () => {
   const [editingContent, setEditingContent] = useState(null); // content id
   const [contentEditValue, setContentEditValue] = useState('');
   const [contentEditPreview, setContentEditPreview] = useState(false);
+  const [contentEditType, setContentEditType] = useState('file');
+  const [contentEditFile, setContentEditFile] = useState(null);
+  const [contentEditEmbed, setContentEditEmbed] = useState('');
+  const [contentEditQuizObj, setContentEditQuizObj] = useState(null);
 
   // Fetch course contents
   useEffect(() => {
@@ -218,9 +223,25 @@ const AdminCourseContent = () => {
                             )}
                             <div>
                               {editingContent === content.id ? (
-                                <div className="flex flex-col">
+                                <div className="flex flex-col gap-2">
                                   <input className="p-1 bg-black/20 rounded text-slate-100" value={contentEditValue} onChange={(e) => setContentEditValue(e.target.value)} />
-                                  <label className="text-xs text-slate-400 mt-1"><input type="checkbox" checked={contentEditPreview} onChange={(e) => setContentEditPreview(e.target.checked)} className="mr-1"/> Preview</label>
+                                  <label className="text-xs text-slate-400"><input type="checkbox" checked={contentEditPreview} onChange={(e) => setContentEditPreview(e.target.checked)} className="mr-1"/> Preview</label>
+                                  <select className="p-1 bg-black/20 rounded text-slate-100" value={contentEditType} onChange={(e) => setContentEditType(e.target.value)}>
+                                    <option value="file">File Upload</option>
+                                    <option value="dailymotion">Dailymotion</option>
+                                    <option value="quiz">Quiz</option>
+                                  </select>
+                                  {contentEditType === 'file' && (
+                                    <input type="file" onChange={(e) => setContentEditFile(e.target.files[0])} className="text-slate-200" />
+                                  )}
+                                  {contentEditType === 'dailymotion' && (
+                                    <input type="text" placeholder="Dailymotion URL" value={contentEditEmbed} onChange={(e) => setContentEditEmbed(e.target.value)} className="p-1 bg-black/20 rounded text-slate-100" />
+                                  )}
+                                  {contentEditType === 'quiz' && (
+                                    <div className="p-0">
+                                      <QuizBuilder value={contentEditQuizObj} onChange={(obj) => setContentEditQuizObj(obj)} />
+                                    </div>
+                                  )}
                                 </div>
                               ) : (
                                 <>
@@ -243,14 +264,46 @@ const AdminCourseContent = () => {
                                   try {
                                     const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
                                     const token = localStorage.getItem('token');
-                                    const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents/${content.id}`, {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                                      body: JSON.stringify({ lesson_title: contentEditValue, is_preview: contentEditPreview })
-                                    });
-                                    if (!res.ok) throw new Error('Failed to update content');
+                                    // If file attached, use FormData
+                                    if (contentEditType === 'file' && contentEditFile) {
+                                      const fd = new FormData();
+                                      fd.append('file', contentEditFile);
+                                      fd.append('lesson_title', contentEditValue);
+                                      fd.append('is_preview', contentEditPreview);
+                                      const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents/${content.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Authorization': `Bearer ${token}` },
+                                        body: fd
+                                      });
+                                      if (!res.ok) throw new Error('Failed to update content');
+                                    } else if (contentEditType === 'dailymotion') {
+                                      const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents/${content.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                        body: JSON.stringify({ lesson_title: contentEditValue, is_preview: contentEditPreview, embed_url: contentEditEmbed })
+                                      });
+                                      if (!res.ok) throw new Error('Failed to update content');
+                                    } else if (contentEditType === 'quiz') {
+                                      const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents/${content.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                        body: JSON.stringify({ lesson_title: contentEditValue, is_preview: contentEditPreview, quiz: JSON.stringify(contentEditQuizObj) })
+                                      });
+                                      if (!res.ok) throw new Error('Failed to update content');
+                                    } else {
+                                      const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents/${content.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                        body: JSON.stringify({ lesson_title: contentEditValue, is_preview: contentEditPreview })
+                                      });
+                                      if (!res.ok) throw new Error('Failed to update content');
+                                    }
+
                                     toast.success('Content updated');
                                     setEditingContent(null);
+                                    setContentEditFile(null);
+                                    setContentEditEmbed('');
+                                    setContentEditQuizObj(null);
                                     fetchContents();
                                   } catch (err) {
                                     console.error(err);
