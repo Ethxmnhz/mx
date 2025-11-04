@@ -75,6 +75,24 @@ const AdminCourseContent = () => {
   const [contentEditFile, setContentEditFile] = useState(null);
   const [contentEditEmbed, setContentEditEmbed] = useState('');
   const [contentEditQuizObj, setContentEditQuizObj] = useState(null);
+  // Add Topic state
+  const [addingModule, setAddingModule] = useState(null); // module_name
+  const [addTitle, setAddTitle] = useState('');
+  const [addPreview, setAddPreview] = useState(false);
+  const [addType, setAddType] = useState('file');
+  const [addFile, setAddFile] = useState(null);
+  const [addEmbed, setAddEmbed] = useState('');
+  const [addQuizObj, setAddQuizObj] = useState(null);
+
+  const resetAddForm = () => {
+    setAddingModule(null);
+    setAddTitle('');
+    setAddPreview(false);
+    setAddType('file');
+    setAddFile(null);
+    setAddEmbed('');
+    setAddQuizObj(null);
+  };
 
   // Fetch course contents
   useEffect(() => {
@@ -210,6 +228,81 @@ const AdminCourseContent = () => {
 
                   {expandedModules[module.module_name] && (
                     <div className="mt-3 space-y-3">
+                      {/* Add Topic Toggle */}
+                      {addingModule === module.module_name ? (
+                        <div className="p-3 bg-black/20 border border-white/10 rounded-lg">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <input className="p-2 bg-black/30 border border-white/10 rounded text-slate-100" placeholder="Lesson title" value={addTitle} onChange={(e)=>setAddTitle(e.target.value)} />
+                            <select className="p-2 bg-black/30 border border-white/10 rounded text-slate-100" value={addType} onChange={(e)=>setAddType(e.target.value)}>
+                              <option value="file">File Upload</option>
+                              <option value="dailymotion">Dailymotion</option>
+                              <option value="quiz">Quiz</option>
+                            </select>
+                          </div>
+                          <div className="mt-3">
+                            {addType === 'file' && (
+                              <input type="file" onChange={(e)=>setAddFile(e.target.files[0])} className="text-slate-200" />
+                            )}
+                            {addType === 'dailymotion' && (
+                              <input type="text" placeholder="Dailymotion URL" value={addEmbed} onChange={(e)=>setAddEmbed(e.target.value)} className="w-full p-2 bg-black/30 border border-white/10 rounded text-slate-100" />
+                            )}
+                            {addType === 'quiz' && (
+                              <div className="p-0">
+                                <QuizBuilder value={addQuizObj || undefined} onChange={(obj)=>setAddQuizObj(obj)} />
+                              </div>
+                            )}
+                          </div>
+                          <label className="inline-flex items-center gap-2 text-xs text-slate-400 mt-3">
+                            <input type="checkbox" checked={addPreview} onChange={(e)=>setAddPreview(e.target.checked)} /> Preview
+                          </label>
+                          <div className="mt-3 flex gap-2">
+                            <button
+                              className="px-3 py-1.5 text-xs rounded bg-emerald-500/15 text-emerald-200 border border-emerald-400/30 hover:bg-emerald-500/25"
+                              onClick={async()=>{
+                                try {
+                                  if (!addTitle.trim()) { toast.error('Title required'); return; }
+                                  const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
+                                  const token = localStorage.getItem('token');
+                                  // Determine next order number
+                                  const maxOrder = (module.contents || []).reduce((m,c)=> Math.max(m, c?.order_number ?? 0), 0);
+                                  const order_number = (maxOrder || 0) + 1;
+                                  if (addType === 'file' && addFile) {
+                                    const fd = new FormData();
+                                    fd.append('file', addFile);
+                                    fd.append('module_name', module.module_name);
+                                    fd.append('lesson_title', addTitle);
+                                    fd.append('order_number', String(order_number));
+                                    fd.append('is_preview', addPreview);
+                                    const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+                                    if (!res.ok) throw new Error('Upload failed');
+                                  } else if (addType === 'dailymotion') {
+                                    const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ module_name: module.module_name, lesson_title: addTitle, order_number, is_preview: addPreview, embed_url: addEmbed, file_type: 'video' }) });
+                                    if (!res.ok) throw new Error('Upload failed');
+                                  } else if (addType === 'quiz') {
+                                    const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/contents`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ module_name: module.module_name, lesson_title: addTitle, order_number, is_preview: addPreview, quiz: JSON.stringify(addQuizObj || {}) }) });
+                                    if (!res.ok) throw new Error('Upload failed');
+                                  } else {
+                                    toast.error('Please provide a file or valid input'); return;
+                                  }
+                                  toast.success('Topic added');
+                                  resetAddForm();
+                                  fetchContents();
+                                } catch (e) {
+                                  console.error(e);
+                                  toast.error('Failed to add topic');
+                                }
+                              }}
+                            >Save Topic</button>
+                            <button className="px-3 py-1.5 text-xs rounded bg-white/5 border border-white/10" onClick={resetAddForm}>Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          className="mb-2 px-3 py-1.5 text-xs rounded bg-emerald-500/10 text-emerald-200 border border-emerald-400/20 hover:bg-emerald-500/20"
+                          onClick={()=>{ setAddingModule(module.module_name); setAddTitle(''); setAddType('file'); setAddPreview(false); setAddFile(null); setAddEmbed(''); setAddQuizObj(null); }}
+                        >+ Add Topic</button>
+                      )}
+
                       {module.contents.map((content, idx) => (
                         <div
                           key={content.id}
