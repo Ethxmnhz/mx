@@ -106,6 +106,22 @@ const CourseContent = () => {
     await updateProgress(activeContent.id, true);
   };
 
+  // Handle next topic navigation
+  const handleNextTopic = () => {
+    if (!courseData?.content || !activeContent) return;
+    
+    // Find current content index
+    const currentIndex = courseData.content.findIndex(c => c.id === activeContent.id);
+    
+    // Navigate to next content if available
+    if (currentIndex !== -1 && currentIndex < courseData.content.length - 1) {
+      setActiveContent(courseData.content[currentIndex + 1]);
+      toast.success('Moving to next topic');
+    } else {
+      toast.info('You have reached the end of the course');
+    }
+  };
+
   // Check course access and load content
   const checkAccessAndLoadContent = async () => {
     try {
@@ -363,7 +379,12 @@ const CourseContent = () => {
               {/* Content Body */}
               <div className="p-6">
                 {activeContent.file_type === 'video' ? (
-                  <DailymotionPlayer embedUrl={activeContent.embed_url} title={activeContent.lesson_title} />
+                  <DailymotionPlayer 
+                    embedUrl={activeContent.embed_url} 
+                    title={activeContent.lesson_title}
+                    onComplete={handleContentComplete}
+                    onNext={handleNextTopic}
+                  />
                 ) : activeContent.file_type === 'quiz' ? (
                   <div className="space-y-4">
                     <QuizView contentId={activeContent.id} onResult={(res) => {
