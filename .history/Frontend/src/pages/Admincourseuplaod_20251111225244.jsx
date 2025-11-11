@@ -137,7 +137,7 @@ const CourseContentUpload = () => {
             // Extract video ID from URL
             const videoId = extractDailymotionId(content.embed_url);
             if (!videoId) {
-              toast.error(`Invalid video URL for lesson: ${content.lesson_title}`);
+              toast.error(`Invalid Dailymotion URL for lesson: ${content.lesson_title}`);
               continue;
             }
             

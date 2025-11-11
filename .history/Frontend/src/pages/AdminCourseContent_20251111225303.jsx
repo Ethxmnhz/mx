@@ -244,7 +244,7 @@ const AdminCourseContent = () => {
                               <input type="file" onChange={(e)=>setAddFile(e.target.files[0])} className="text-slate-200" />
                             )}
                             {addType === 'dailymotion' && (
-                              <input type="text" placeholder="Video embed URL" value={addEmbed} onChange={(e)=>setAddEmbed(e.target.value)} className="w-full p-2 bg-black/30 border border-white/10 rounded text-slate-100" />
+                              <input type="text" placeholder="Dailymotion URL" value={addEmbed} onChange={(e)=>setAddEmbed(e.target.value)} className="w-full p-2 bg-black/30 border border-white/10 rounded text-slate-100" />
                             )}
                             {addType === 'quiz' && (
                               <div className="p-0">

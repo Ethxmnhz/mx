@@ -137,7 +137,7 @@ const CourseContentUpload = () => {
             // Extract video ID from URL
             const videoId = extractDailymotionId(content.embed_url);
             if (!videoId) {
-              toast.error(`Invalid video URL for lesson: ${content.lesson_title}`);
+              toast.error(`Invalid Dailymotion URL for lesson: ${content.lesson_title}`);
               continue;
             }
             
@@ -245,7 +245,7 @@ const CourseContentUpload = () => {
                         ) : content.type === 'dailymotion' ? (
                           <input
                             type="text"
-                            placeholder="Video embed URL (e.g., https://www.dailymotion.com/video/... or https://dai.ly/...)"
+                            placeholder="Dailymotion URL (e.g., https://www.dailymotion.com/video/x7u5g4...) or https://dai.ly/x7u5g4"
                             value={content.embed_url}
                             onChange={(e) => {
                               const url = e.target.value;
@@ -256,7 +256,7 @@ const CourseContentUpload = () => {
                                   file_type: 'video' 
                                 });
                               } else if (url && !videoId) {
-                                toast.error('Please enter a valid video URL');
+                                toast.error('Please enter a valid Dailymotion URL');
                               }
                             }}
                             className="w-full p-2 bg-black/30 border border-white/10 rounded text-slate-100 placeholder:text-slate-500"
