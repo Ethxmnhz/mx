@@ -61,6 +61,15 @@ function buildEmbedUrl(input) {
     // Keep controls for fullscreen capability
     params.set('controls', 'true');
     params.set('syndication', '0');
+    
+    // Enable loop to prevent autoplay to other videos
+    params.set('loop', '1');
+    
+    // Disable video info overlay
+    params.set('ui-show-info', '0');
+    
+    // Disable external links
+    params.set('origin', window.location.origin);
 
     // Theming and highlight color to match neon accents
     params.set('ui-theme', 'dark');
