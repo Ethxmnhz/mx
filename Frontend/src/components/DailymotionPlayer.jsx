@@ -1,5 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import React, { useMemo, useRef } from 'react';
 
 // Extract a Dailymotion video ID from various URL shapes, or return null
 function extractDailymotionId(input) {
@@ -50,10 +49,10 @@ function buildEmbedUrl(input) {
 
     // Enable API for time tracking
     params.set('api', '1');
-    params.set('events', '1');
 
-    // Disable all recommendations and related videos
+    // Disable all recommendations and related videos aggressively
     params.set('queue-enable', '0');
+    params.set('queue-autoplay-next', '0');
     params.set('endscreen-enable', '0');
     params.set('sharing-enable', '0');
     params.set('ui-logo', '0');
@@ -95,107 +94,22 @@ function buildEmbedUrl(input) {
 
 // Dailymotion player wrapper that minimizes branding and attempts autoplay.
 // Note: Browsers often block autoplay with sound until user interaction.
-export default function DailymotionPlayer({ embedUrl, title = 'Video', onComplete, onNext }) {
+export default function DailymotionPlayer({ embedUrl, title = 'Video' }) {
   const src = useMemo(() => buildEmbedUrl(embedUrl), [embedUrl]);
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [videoDuration, setVideoDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
   const iframeRef = useRef(null);
-  const messageListenerRef = useRef(null);
-
-  useEffect(() => {
-    // Listen for Dailymotion player events via postMessage
-    const handleMessage = (event) => {
-      if (event.origin !== 'https://www.dailymotion.com') return;
-      
-      try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        
-        if (data.event === 'durationchange') {
-          setVideoDuration(data.duration || 0);
-        } else if (data.event === 'timeupdate') {
-          const time = data.time || 0;
-          setCurrentTime(time);
-          
-          // Show overlay 10 seconds before end
-          if (videoDuration > 0 && time >= videoDuration - 10 && time < videoDuration) {
-            setShowOverlay(true);
-          } else if (time < videoDuration - 10) {
-            setShowOverlay(false);
-          }
-        } else if (data.event === 'ended') {
-          setShowOverlay(true);
-          // Pause the video to prevent autoplay of external videos
-          if (iframeRef.current?.contentWindow) {
-            iframeRef.current.contentWindow.postMessage(
-              JSON.stringify({ command: 'pause' }),
-              'https://www.dailymotion.com'
-            );
-          }
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    messageListenerRef.current = handleMessage;
-
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, [videoDuration]);
-
-  const handleComplete = () => {
-    setShowOverlay(false);
-    if (onComplete) onComplete();
-  };
-
-  const handleNextTopic = () => {
-    setShowOverlay(false);
-    if (onNext) onNext();
-  };
 
   return (
     <div className="relative w-full rounded-lg overflow-hidden bg-black/60 border border-white/10" style={{ paddingTop: '56.25%' }}>
       {src ? (
-        <>
-          <iframe
-            ref={iframeRef}
-            title={title}
-            src={src}
-            className="absolute top-0 left-0 w-full h-full"
-            frameBorder="0"
-            allow="autoplay; fullscreen *; picture-in-picture *; encrypted-media; accelerometer; gyroscope"
-            allowFullScreen
-          />
-          
-          {/* Overlay with Complete and Next buttons */}
-          {showOverlay && (
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10">
-              <div className="flex flex-col sm:flex-row gap-4">
-                {onComplete && (
-                  <button
-                    onClick={handleComplete}
-                    className="px-6 py-3 rounded-lg bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 font-semibold flex items-center gap-2 transition-all"
-                  >
-                    <CheckCircleIcon className="w-5 h-5" />
-                    Mark Complete
-                  </button>
-                )}
-                {onNext && (
-                  <button
-                    onClick={handleNextTopic}
-                    className="px-6 py-3 rounded-lg bg-white/10 text-slate-200 border border-white/20 hover:bg-white/20 font-semibold flex items-center gap-2 transition-all"
-                  >
-                    Next Topic
-                    <ArrowRightIcon className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </>
+        <iframe
+          ref={iframeRef}
+          title={title}
+          src={src}
+          className="absolute top-0 left-0 w-full h-full"
+          frameBorder="0"
+          allow="autoplay; fullscreen *; picture-in-picture *; encrypted-media; accelerometer; gyroscope"
+          allowFullScreen
+        />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-sm">
