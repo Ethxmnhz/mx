@@ -35,6 +35,13 @@ router.get('/proxy/dailymotion/:videoId', async (req, res) => {
     html = html.replace(/https:\/\/static1\.dmcdn\.net/g, `${apiUrl}/api/video/cdn`);
     html = html.replace(/https:\/\/www\.dailymotion\.com/g, `${apiUrl}/api/video/dm`);
     html = html.replace(/https:\/\/geo\.dailymotion\.com/g, `${apiUrl}/api/video/geo`);
+    html = html.replace(/https:\/\/pebed\.dm-event\.net/g, `${apiUrl}/api/video/events`);
+    html = html.replace(/https:\/\/vendorlist\.dmcdn\.net/g, `${apiUrl}/api/video/vendorlist`);
+    
+    // Block third-party tracking/ads (return empty responses for these)
+    html = html.replace(/https:\/\/securepubads\.g\.doubleclick\.net/g, `${apiUrl}/api/video/noop`);
+    html = html.replace(/https:\/\/s0\.2mdn\.net/g, `${apiUrl}/api/video/noop`);
+    html = html.replace(/https:\/\/pagead2\.googlesyndication\.com/g, `${apiUrl}/api/video/noop`);
     
     // Set appropriate headers
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -143,6 +150,73 @@ router.get('/geo/:path', async (req, res) => {
   } catch (error) {
     console.error('Geo proxy error:', error);
     res.status(500).json({ message: 'Failed to proxy geo resource' });
+  }
+});
+
+// Proxy event tracking endpoints
+router.post('/events', async (req, res) => {
+  try {
+    // Just return success without forwarding tracking data
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.status(204).send();
+  } catch (error) {
+    console.error('Events proxy error:', error);
+    res.status(204).send();
+  }
+});
+
+// Proxy vendor list
+router.get('/vendorlist/:path', async (req, res) => {
+  try {
+    const { path } = req.params;
+    const queryString = req.url.split('?')[1] || '';
+    const targetUrl = `https://vendorlist.dmcdn.net/${path}${queryString ? '?' + queryString : ''}`;
+    
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Referer': 'https://maxsec.tech/'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Vendor list returned ${response.status}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (contentType) res.setHeader('Content-Type', contentType);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    console.error('Vendor list proxy error:', error);
+    res.status(500).json({ message: 'Failed to proxy vendor list' });
+  }
+});
+
+// No-op endpoint for blocked third-party services (ads, tracking)
+router.all('/noop', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(200).send();
+  } else {
+    res.status(204).send();
+  }
+});
+
+router.all('/noop/:path', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(200).send();
+  } else {
+    res.status(204).send();
   }
 });
 
