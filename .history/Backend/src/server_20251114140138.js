@@ -74,7 +74,6 @@ app.use('/api/auth/v1', commentsRoutes)
 app.use('/api/auth/v1', sensitivePostLimiter, progressRoutes);
 app.use('/api/auth/v1', sensitivePostLimiter, quizRoutes);
 app.use('/api/support', supportRoutes);
-app.use('/api/video', videoRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
