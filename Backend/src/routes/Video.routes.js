@@ -49,10 +49,11 @@ router.get('/proxy/dailymotion/:videoId', async (req, res) => {
   }
 });
 
-// Proxy other Dailymotion resources
-router.get('/proxy-dm/:path(*)', async (req, res) => {
+// Proxy other Dailymotion resources - using simple wildcard
+router.get('/proxy-dm*', async (req, res) => {
   try {
-    const path = req.params.path;
+    // Extract path after /proxy-dm
+    const path = req.path.replace('/proxy-dm/', '').replace('/proxy-dm', '');
     const queryString = req.url.split('?')[1] || '';
     const targetUrl = `https://www.dailymotion.com/${path}${queryString ? '?' + queryString : ''}`;
     
