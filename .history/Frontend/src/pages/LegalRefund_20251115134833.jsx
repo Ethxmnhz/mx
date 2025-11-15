@@ -125,36 +125,6 @@ export default function LegalRefund() {
             </div>
           </section>
 
-          {/* Termination Rights */}
-          <section className="bg-white/5 rounded-xl border border-white/10 p-6">
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">MaxSec Academy's Right to Terminate Access</h2>
-            <div className="space-y-4 text-slate-300">
-              <p className="font-semibold text-slate-200">
-                MaxSec Academy reserves the right to terminate or suspend your access to any purchased course at any time, without prior notice and without refund, under the following circumstances:
-              </p>
-              <ul className="list-disc list-inside space-y-3 ml-4">
-                <li>
-                  <strong className="text-slate-200">Malpractice or Misconduct:</strong> If you engage in any form of academic dishonesty, cheating, sharing course materials without authorization, or violating our Terms of Service.
-                </li>
-                <li>
-                  <strong className="text-slate-200">Wrong Price Payment:</strong> If you attempt to purchase a course using fraudulent payment methods, exploiting pricing errors, or manipulating payment systems to obtain courses at incorrect prices.
-                </li>
-                <li>
-                  <strong className="text-slate-200">Abuse of Platform:</strong> If you misuse the platform, attempt to reverse-engineer course content, distribute copyrighted materials, or engage in any activity that violates our policies or applicable laws.
-                </li>
-                <li>
-                  <strong className="text-slate-200">Violation of License Agreement:</strong> If you share your account credentials, allow unauthorized access to courses, or use the content for commercial purposes without permission.
-                </li>
-              </ul>
-              <p className="mt-4 p-4 bg-red-500/10 border border-red-400/30 rounded-lg text-red-100">
-                <strong>Important:</strong> In the event of termination, <strong className="text-white">no refund will be issued</strong>. MaxSec Academy's decision to terminate access is final and at our sole discretion. You will forfeit all access to the course and any associated materials.
-              </p>
-              <p className="mt-4 text-sm">
-                By purchasing and using our courses, you agree to comply with all policies and acknowledge that MaxSec Academy has the right to terminate your access without refund if you violate any terms or engage in prohibited activities.
-              </p>
-            </div>
-          </section>
-
           {/* Pre-Purchase Recommendations */}
           <section className="bg-white/5 rounded-xl border border-white/10 p-6">
             <h2 className="text-2xl font-semibold text-slate-100 mb-4">Before You Purchase</h2>
