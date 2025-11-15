@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 
 // Extract a Dailymotion video ID from various URL shapes, or return null
 function extractDailymotionId(input) {
@@ -95,8 +95,47 @@ function buildEmbedUrl(input) {
 // Dailymotion player wrapper that minimizes branding and attempts autoplay.
 // Note: Browsers often block autoplay with sound until user interaction.
 export default function DailymotionPlayer({ embedUrl, title = 'Video' }) {
-  const src = useMemo(() => buildEmbedUrl(embedUrl), [embedUrl]);
+  const [reloadCounter, setReloadCounter] = useState(0);
+  const [status, setStatus] = useState('loading'); // loading | loaded | error | timeout
   const iframeRef = useRef(null);
+
+  // Build src with cache bust when reloading
+  const src = useMemo(() => {
+    const base = buildEmbedUrl(embedUrl);
+    if (!base) return '';
+    const url = new URL(base);
+    url.searchParams.set('bust', String(reloadCounter));
+    return url.toString();
+  }, [embedUrl, reloadCounter]);
+
+  useEffect(() => {
+    if (!src) {
+      setStatus('error');
+      return;
+    }
+    setStatus('loading');
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const handleLoad = () => setStatus('loaded');
+    const handleError = () => setStatus('error');
+
+    iframe.addEventListener('load', handleLoad);
+    iframe.addEventListener('error', handleError);
+
+    // Timeout: if not loaded within 15s assume blocked by network
+    const timeoutId = setTimeout(() => {
+      if (status === 'loading') setStatus('timeout');
+    }, 15000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      iframe.removeEventListener('load', handleLoad);
+      iframe.removeEventListener('error', handleError);
+    };
+  }, [src]);
+
+  const blocked = status === 'error' || status === 'timeout';
 
   return (
     <div className="relative w-full rounded-lg overflow-hidden bg-black/60 border border-white/10" style={{ paddingTop: '56.25%' }}>
@@ -106,38 +145,38 @@ export default function DailymotionPlayer({ embedUrl, title = 'Video' }) {
             ref={iframeRef}
             title={title}
             src={src}
-            className="absolute top-0 left-0 w-full h-full"
+            className={`absolute top-0 left-0 w-full h-full transition-opacity ${blocked ? 'opacity-30' : 'opacity-100'}`}
             frameBorder="0"
             allow="autoplay; fullscreen *; picture-in-picture *; encrypted-media; accelerometer; gyroscope"
             allowFullScreen
-            style={{ zIndex: 1 }}
           />
-          {/* Simple max-volume button: sets player volume to 100% */}
-          <div
-            className="absolute top-3 right-3"
-            style={{ zIndex: 2147483647, pointerEvents: 'auto' }}
-          >
-            <button
-              type="button"
-              onClick={() => {
-                try {
-                  if (!iframeRef.current?.contentWindow) return;
-                  const cmds = [
-                    { command: 'unmute' },
-                    { command: 'volume', value: 1 }
-                  ];
-                  cmds.forEach((cmd) => {
-                    iframeRef.current.contentWindow.postMessage(JSON.stringify(cmd), 'https://www.dailymotion.com');
-                  });
-                } catch {}
-              }}
-              className="px-3 py-1.5 rounded-md text-xs font-semibold border bg-white/10 text-slate-200 border-white/20 hover:bg-white/20"
-              title="Set player to max volume"
-              style={{ pointerEvents: 'auto' }}
-            >
-              Boost Volume
-            </button>
-          </div>
+          {blocked && (
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <div className="max-w-sm w-full space-y-3 bg-black/70 backdrop-blur rounded-lg border border-red-500/40 p-4">
+                <p className="text-sm text-red-200 font-medium">
+                  It seems your Wi‑Fi / network is blocking the video player.
+                </p>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Some organizations filter or block streaming domains like Dailymotion. Try switching to a mobile hotspot, different Wi‑Fi, or a VPN, then reload this lesson.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setReloadCounter(c => c + 1)}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-md bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-500/40"
+                  >
+                    Retry Load
+                  </button>
+                  <button
+                    onClick={() => window.open('https://status.dailymotion.com', '_blank')}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-md bg-white/10 hover:bg-white/20 text-slate-200 border border-white/20"
+                  >
+                    Check Status
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500">If this persists please contact support.</p>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">

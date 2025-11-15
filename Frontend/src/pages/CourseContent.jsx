@@ -17,6 +17,8 @@ import {
   UserIcon,
   ChatBubbleLeftIcon
 } from '@heroicons/react/24/outline';
+import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
+
 
 const CourseContent = () => {
   const { courseId } = useParams();
@@ -34,6 +36,7 @@ const CourseContent = () => {
   const [loadingProgress, setLoadingProgress] = useState(false);
   const contentTopRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  // (Boost removed) No external audio processing refs required
 
   // Load course content
   useEffect(() => {
@@ -397,17 +400,23 @@ const CourseContent = () => {
               {/* Content Body */}
               <div className="p-6">
                 {activeContent.file_type === 'video' ? (
-                  activeContent?.embed_url ? (
-                    <DailymotionPlayer 
-                      embedUrl={activeContent.embed_url} 
-                      title={activeContent.lesson_title}
-                    />
-                  ) : (
-                    <Html5VideoPlayer
-                      src={activeContent.file_url}
-                      title={activeContent.lesson_title}
-                    />
-                  )
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 px-5 py-3 text-sm rounded-md border border-emerald-400/30 bg-black/60 text-slate-200 shadow-inner">
+                      <SpeakerWaveIcon className="w-5 h-5 text-emerald-300 flex-shrink-0" />
+                      <span className="font-medium leading-snug">Tip: For clearer sound and reduced background noise, use headphones.</span>
+                    </div>
+                    {activeContent?.embed_url ? (
+                      <DailymotionPlayer
+                        embedUrl={activeContent.embed_url}
+                        title={activeContent.lesson_title}
+                      />
+                    ) : (
+                      <Html5VideoPlayer
+                        src={activeContent.file_url}
+                        title={activeContent.lesson_title}
+                      />
+                    )}
+                  </div>
                 ) : activeContent.file_type === 'quiz' ? (
                   <div className="space-y-4">
                     <QuizView contentId={activeContent.id} onResult={(res) => {
