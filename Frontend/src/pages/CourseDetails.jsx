@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 import { apiUrl } from '../lib/api';
-import { SparklesIcon, AcademicCapIcon, ClockIcon, TagIcon, PlayIcon, DocumentIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, AcademicCapIcon, ClockIcon, TagIcon, PlayIcon, DocumentIcon, CheckCircleIcon, CommandLineIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 const CourseDetails = () => {
   const { courseId } = useParams();
@@ -236,86 +236,112 @@ const CourseDetails = () => {
             </div>
           </div>
 
-          {/* Curriculum preview */}
-          {(previewModules.length > 0 || previewLoading) && (
-            <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-slate-100">Curriculum preview</h3>
-                <span className="text-xs text-slate-500">Preview lessons only</span>
+          {/* Course Stats */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-400/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <ClockIcon className="h-5 w-5 text-emerald-400" />
+                <span className="text-xs text-slate-400">Learning Material</span>
               </div>
-              {previewLoading ? (
-                <div className="text-sm text-slate-400">Loading preview...</div>
-              ) : (
-                <div className="space-y-4">
-                  {previewModules.map((m, i) => (
-                    <div key={i} className="">
-                      <div className="text-sm font-medium text-slate-200 mb-2">{m.name}</div>
-                      <div className="space-y-2">
-                        {m.lessons.map(lesson => (
-                          <div key={lesson.id} className="flex items-center justify-between p-3 bg-black/30 border border-white/10 rounded-lg">
-                            <div className="flex items-center gap-3 min-w-0">
-                              {lesson.file_type === 'video' ? (
-                                <PlayIcon className="h-5 w-5 text-emerald-300" />
-                              ) : (
-                                <DocumentIcon className="h-5 w-5 text-emerald-300" />
-                              )}
-                              <div className="min-w-0">
-                                <div className="text-sm text-slate-100 truncate">{lesson.lesson_title}</div>
-                                <div className="text-xs text-slate-500">{lesson.file_type} • Preview</div>
-                              </div>
-                            </div>
-                            <span className="px-2 py-0.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 text-emerald-200 text-[11px]">Preview</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-2xl font-bold text-slate-100">24+ Hours</div>
             </div>
-          )}
+            <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-400/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <DocumentIcon className="h-5 w-5 text-emerald-400" />
+                <span className="text-xs text-slate-400">Presentations</span>
+              </div>
+              <div className="text-2xl font-bold text-slate-100">160+ Slides</div>
+            </div>
+            <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-400/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CommandLineIcon className="h-5 w-5 text-emerald-400" />
+                <span className="text-xs text-slate-400">VM-Based Labs</span>
+              </div>
+              <div className="text-2xl font-bold text-slate-100">20+ Labs</div>
+            </div>
+            <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-400/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircleIcon className="h-5 w-5 text-emerald-400" />
+                <span className="text-xs text-slate-400">Certification</span>
+              </div>
+              <div className="text-2xl font-bold text-slate-100">Free MJPT</div>
+            </div>
+          </div>
 
-          {/* Included in this course + Instructor */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-3">Included in this course</h3>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'Lifetime access',
-                  'Certificate of completion',
-                  'Community support',
-                ].map((chip, idx) => (
-                  <span key={idx} className="px-3 py-1.5 rounded-full bg-black/30 border border-white/10 text-sm text-slate-300">{chip}</span>
-                ))}
-              </div>
+          {/* Full Curriculum */}
+          <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-slate-100 mb-2">Complete Curriculum</h3>
+              <p className="text-sm text-slate-400">12 comprehensive modules covering all aspects of penetration testing</p>
             </div>
-            <div className="md:col-span-1 bg-white/5 border border-white/10 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-3">{Array.isArray(course.instructors) && course.instructors.length > 1 ? 'Instructors' : 'Instructor'}</h3>
-              {Array.isArray(course.instructors) && course.instructors.length > 0 ? (
-                <div className="space-y-3">
-                  {course.instructors.map((name, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 flex items-center justify-center text-sm">
-                        {name?.[0] || 'M'}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-slate-100 capitalize">{name}</div>
-                        <div className="text-xs text-slate-500">MaxSec Acadmy</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 flex items-center justify-center text-sm">
-                    {(course.created_by || 'MS')[0]}
+
+            <div className="space-y-3">
+              {[
+                { num: 1, title: 'Introduction', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 2, title: 'Basics', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 3, title: 'Information Gathering / Recon', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 4, title: 'Scanning', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 5, title: 'Enumeration', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 6, title: 'Exploitation', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 7, title: 'Metasploit', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 8, title: 'Post Exploitation', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 9, title: 'Wireless Hacking & Sniffing', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 10, title: 'Web Application Pentesting', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 11, title: 'Social Engineering', icon: <BookOpenIcon className="h-5 w-5" /> },
+                { num: 12, title: 'Labs', icon: <BookOpenIcon className="h-5 w-5" /> },
+              ].map((module) => (
+                <div key={module.num} className="flex items-center gap-4 p-4 bg-black/30 border border-white/10 rounded-lg hover:border-emerald-400/30 transition-colors">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 font-semibold">
+                    #{module.num}
                   </div>
-                  <div>
-                    <div className="text-sm font-medium text-slate-100">{course.created_by || 'MaxSec Instructor'}</div>
-                    <div className="text-xs text-slate-500">MaxSec Acadmy</div>
+                  <div className="text-emerald-400">{module.icon}</div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-slate-100">{module.title}</div>
                   </div>
+                  <span className="text-xs text-slate-500">Coming Soon</span>
                 </div>
-              )}
+              ))}
+            </div>
+
+            <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-400/30 rounded-lg">
+              <p className="text-sm text-slate-300">
+                <strong>More modules coming soon!</strong> This curriculum is expanding with additional advanced topics and specialized labs.
+              </p>
+            </div>
+          </div>
+
+          {/* What's Included */}
+          <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-slate-100 mb-4">What's Included in This Course</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3">
+                <ClockIcon className="h-5 w-5 text-emerald-400 mt-1 flex-shrink-0" />
+                <div>
+                  <div className="font-medium text-slate-100">24+ Hours of Material</div>
+                  <div className="text-sm text-slate-400">Comprehensive video lectures and tutorials</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <DocumentIcon className="h-5 w-5 text-emerald-400 mt-1 flex-shrink-0" />
+                <div>
+                  <div className="font-medium text-slate-100">160+ PPT Slides</div>
+                  <div className="text-sm text-slate-400">Detailed presentation materials</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <CommandLineIcon className="h-5 w-5 text-emerald-400 mt-1 flex-shrink-0" />
+                <div>
+                  <div className="font-medium text-slate-100">20+ VM-Based Labs</div>
+                  <div className="text-sm text-slate-400">Hands-on practice environments</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircleIcon className="h-5 w-5 text-emerald-400 mt-1 flex-shrink-0" />
+                <div>
+                  <div className="font-medium text-slate-100">Free MJPT Voucher</div>
+                  <div className="text-sm text-slate-400">24-hour report-based certification exam</div>
+                </div>
+              </div>
             </div>
           </div>
 
