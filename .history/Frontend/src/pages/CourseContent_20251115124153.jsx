@@ -352,61 +352,69 @@ const CourseContent = () => {
         </div>
         {activeContent ? (
           <div className="max-w-5xl mx-auto p-6">
-            <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-              {/* Content Header */}
-              <div className="p-6 border-b border-white/10">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h1 className="text-2xl font-bold text-slate-100">{activeContent.lesson_title}</h1>
-                    {activeContent.lesson_description && (
-                      <p className="mt-2 text-slate-400">{activeContent.lesson_description}</p>
-                    )}
+            {/* Sticky Video Player Container */}
+            <div className="sticky top-[57px] z-[5] bg-[#0a0f14] pb-4 mb-4">
+              <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                {/* Content Header */}
+                <div className="p-4 border-b border-white/10">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h1 className="text-xl font-bold text-slate-100">{activeContent.lesson_title}</h1>
+                      {activeContent.lesson_description && (
+                        <p className="mt-1 text-sm text-slate-400">{activeContent.lesson_description}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={handleContentComplete}
+                      className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors border ${
+                        progress[activeContent.id]?.completed
+                          ? 'bg-emerald-500/10 text-emerald-200 border-emerald-400/30'
+                          : 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25'
+                      }`}
+                      disabled={progress[activeContent.id]?.completed}
+                    >
+                      <CheckCircleIcon className="w-5 h-5" />
+                      <span>{progress[activeContent.id]?.completed ? 'Completed' : 'Mark Complete'}</span>
+                    </button>
                   </div>
-                  <button
-                    onClick={handleContentComplete}
-                    className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors border ${
-                      progress[activeContent.id]?.completed
-                        ? 'bg-emerald-500/10 text-emerald-200 border-emerald-400/30'
-                        : 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25'
-                    }`}
-                    disabled={progress[activeContent.id]?.completed}
-                  >
-                    <CheckCircleIcon className="w-5 h-5" />
-                    <span>{progress[activeContent.id]?.completed ? 'Completed' : 'Mark Complete'}</span>
-                  </button>
+                </div>
+                {/* Content Body - Video/Quiz/PDF */}
+                <div className="p-4">
+                  {activeContent.file_type === 'video' ? (
+                    <DailymotionPlayer 
+                      embedUrl={activeContent.embed_url} 
+                      title={activeContent.lesson_title}
+                      onComplete={handleContentComplete}
+                      onNext={handleNextTopic}
+                    />
+                  ) : activeContent.file_type === 'quiz' ? (
+                    <div className="space-y-4">
+                      <QuizView contentId={activeContent.id} onResult={(res) => {
+                        if (res?.completed) {
+                          updateProgress(activeContent.id, true);
+                        }
+                      }} />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* PDF Viewer */}
+                      <div className="relative w-full rounded-lg overflow-hidden bg-black/30 border border-white/10" style={{ height: '600px' }}>
+                        <object
+                          data={activeContent.file_url}
+                          type="application/pdf"
+                          className="absolute top-0 left-0 w-full h-full"
+                        >
+                          <p className="p-4 text-slate-300">PDF cannot be displayed. <a className="text-emerald-300 underline" href={activeContent.file_url} target="_blank" rel="noopener noreferrer">Download PDF</a></p>
+                        </object>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              {/* Content Body */}
-              <div className="p-6">
-                {activeContent.file_type === 'video' ? (
-                  <DailymotionPlayer 
-                    embedUrl={activeContent.embed_url} 
-                    title={activeContent.lesson_title}
-                  />
-                ) : activeContent.file_type === 'quiz' ? (
-                  <div className="space-y-4">
-                    <QuizView contentId={activeContent.id} onResult={(res) => {
-                      if (res?.completed) {
-                        updateProgress(activeContent.id, true);
-                      }
-                    }} />
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {/* PDF Viewer */}
-                    <div className="relative w-full rounded-lg overflow-hidden bg-black/30 border border-white/10" style={{ height: '600px' }}>
-                      <object
-                        data={activeContent.file_url}
-                        type="application/pdf"
-                        className="absolute top-0 left-0 w-full h-full"
-                      >
-                        <p className="p-4 text-slate-300">PDF cannot be displayed. <a className="text-emerald-300 underline" href={activeContent.file_url} target="_blank" rel="noopener noreferrer">Download PDF</a></p>
-                      </object>
-                    </div>
-                  </div>
-                )}
-              </div>
-              {/* Comments Section */}
+            </div>
+            
+            {/* Comments Section - Scrollable */}
+            <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
               <div className="border-t border-white/10 bg-white/5 p-6">
                 <h3 className="text-lg font-semibold text-slate-100 mb-4">Discussion</h3>
                 <form onSubmit={handleCommentSubmit} className="mb-6">
@@ -467,6 +475,7 @@ const CourseContent = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
