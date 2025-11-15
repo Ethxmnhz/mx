@@ -61,7 +61,6 @@ function App() {
   <Route path="/privacy" element={<Privacy />} />
   <Route path="/about" element={<About />} />
   <Route path="/contact" element={<Contact />} />
-  <Route path="/refund" element={<LegalRefund />} />
 
         {/* Protected routes for regular users */}
         <Route
