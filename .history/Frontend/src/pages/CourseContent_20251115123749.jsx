@@ -333,10 +333,10 @@ const CourseContent = () => {
           ))}
         </div>
       </div>
-      {/* Main Content Area - Fixed height with internal scroll */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Top bar - Fixed */}
-        <div className="flex-shrink-0 bg-[#0a0f14]/80 backdrop-blur border-b border-white/10">
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Top bar */}
+        <div className="sticky top-0 z-10 bg-[#0a0f14]/80 backdrop-blur border-b border-white/10">
           <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -350,8 +350,6 @@ const CourseContent = () => {
             </div>
           </div>
         </div>
-        {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto">
         {activeContent ? (
           <div className="max-w-5xl mx-auto p-6">
             {/* Sticky Video Player Container */}
@@ -477,7 +475,6 @@ const CourseContent = () => {
             </div>
           </div>
         )}
-        </div>
       </div>
     </div>
   );
