@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheckIcon, ArrowPathIcon, DocumentArrowUpIcon, FlagIcon, CheckBadgeIcon, QuestionMarkCircleIcon, ClockIcon, ComputerDesktopIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon, ArrowPathIcon, DocumentArrowUpIcon, FlagIcon, CheckBadgeIcon, QuestionMarkCircleIcon, ClockIcon, ComputerDesktopIcon, DocumentTextIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 export default function Certification() {
   const steps = [
@@ -100,6 +100,44 @@ export default function Certification() {
           <span className="px-3 py-1.5 rounded-full bg-white/5 text-slate-200 border border-white/10 inline-flex items-center gap-2 text-sm">
             <ShieldCheckIcon className="h-5 w-5 text-emerald-400" /> Verifiable Certificate
           </span>
+        </div>
+
+        {/* Pricing Section */}
+        <div className="mt-12 relative">
+          <div className="absolute inset-0 -z-10 blur-3xl opacity-30 pointer-events-none" aria-hidden>
+            <div className="h-full w-full bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.25),transparent_50%)]" />
+          </div>
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-400/20 p-8 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-semibold mb-4">
+              <SparklesIcon className="h-4 w-4" /> Limited Time Offer
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-100">Exam Voucher Pricing</h2>
+            <p className="mt-2 text-slate-300 max-w-2xl mx-auto text-sm">Get 90% discount for the first 100 users. Don't miss out on this exclusive opportunity!</p>
+            
+            <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              {/* Original Price */}
+              <div className="rounded-xl bg-white/5 border border-white/10 p-6">
+                <div className="text-slate-400 text-sm">Regular Price</div>
+                <div className="mt-2 text-2xl font-bold text-slate-300">₹14,999</div>
+                <div className="text-xs text-slate-500 mt-1">Full price for regular access</div>
+              </div>
+
+              {/* Discounted Price */}
+              <div className="rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-400/30 p-6 relative">
+                <div className="absolute -top-3 right-4 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/20 border border-red-400/30 text-red-200 text-xs font-semibold">
+                  <SparklesIcon className="h-3 w-3" /> 90% OFF
+                </div>
+                <div className="text-emerald-300 text-sm font-semibold">First 100 Users</div>
+                <div className="mt-2 text-3xl font-extrabold text-emerald-300">₹1,999</div>
+                <div className="text-xs text-emerald-200/70 mt-1">Save ₹13,000</div>
+                <Link to="/signup" className="mt-4 w-full px-4 py-2 rounded-lg bg-emerald-500/30 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/40 font-semibold text-sm inline-block">Claim Your Offer Now</Link>
+              </div>
+            </div>
+
+            <p className="mt-6 text-xs text-slate-400">
+              ⏱️ <strong>Hurry!</strong> Only available for the first 100 exam takers. Once the quota is filled, pricing will return to ₹14,999.
+            </p>
+          </div>
         </div>
 
         {/* Certificate preview (no card) + How it works */}

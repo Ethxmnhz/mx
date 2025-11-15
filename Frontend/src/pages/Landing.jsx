@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import BrandLogo from "../components/BrandLogo";
 import {
   AcademicCapIcon,
@@ -9,9 +10,24 @@ import {
   CpuChipIcon,
   UsersIcon,
   CheckBadgeIcon,
+  XMarkIcon,
+  BookOpenIcon,
+  ClockIcon,
+  AdjustmentsHorizontalIcon,
+  MapPinIcon,
+  LightBulbIcon,
 } from "@heroicons/react/24/outline";
 
 export default function Landing() {
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    // Show popup after 3 seconds
+    const timer = setTimeout(() => {
+      setShowPopup(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#070b10] via-[#0a121a] to-black text-slate-100 overflow-hidden">
       {/* Background Layers */}
@@ -34,7 +50,7 @@ export default function Landing() {
           >
             {Array.from({ length: 8 }).map((_, i) => (
               <span key={i} className="text-xs md:text-sm text-emerald-200/90">
-                New certification launched: MJPT – MaxSec Junior Penetration Tester.
+                🎁 Enroll in MJPT Course → Get FREE MJPT Exam Voucher! 🔥 First 100 users get 90% OFF (₹1,999 only!). Limited time offer.
               </span>
             ))}
           </div>
@@ -86,7 +102,7 @@ export default function Landing() {
             Applied Cybersecurity Training and Certification.
           </h1>
           <p className="mt-5 text-slate-400 text-lg max-w-2xl mx-auto">
-            Hands‑on learning backed by verifiable credentials, managed by
+            Learn with hands‑on labs, video tutorials, and comprehensive resources. Master real skills and earn verifiable credentials managed by
             <span className="text-emerald-400 font-semibold"> HackoSquad</span>.
           </p>
 
@@ -124,34 +140,34 @@ export default function Landing() {
                 <ShieldCheckIcon className="h-10 w-10 text-emerald-400 mb-3" />
               ),
               title: "Verifiable Credentials",
-              text: "Credentials you can verify and share with employers and peers.",
+              text: "Earn MJPT certification and credentials you can verify and share with employers and peers.",
             },
             {
               icon: (
                 <AcademicCapIcon className="h-10 w-10 text-emerald-400 mb-3" />
               ),
-              title: "Skill-Mapped Learning",
-              text: "Each lab and task is mapped to real cybersecurity skills used by professionals in the field.",
+              title: "Comprehensive Learning",
+              text: "Access video tutorials, detailed PPTs, and structured courses designed for all skill levels.",
             },
             {
               icon: <CpuChipIcon className="h-10 w-10 text-emerald-400 mb-3" />,
               title: "Hands-On Labs",
-              text: "Simulate real attacks and defenses inside guided, interactive environments built for mastery.",
+              text: "Practice with real lab environments on Linux & Windows. Develop practical hacking skills that matter.",
             },
             {
               icon: <TrophyIcon className="h-10 w-10 text-emerald-400 mb-3" />,
-              title: "Assessment-Driven Growth",
-              text: "Earn your certification only after completing practical, scenario-based evaluations.",
+              title: "Free MJPT Voucher",
+              text: "Enroll in our MJPT course and get a FREE exam voucher to take the certification. Limited time!",
             },
             {
               icon: <UsersIcon className="h-10 w-10 text-emerald-400 mb-3" />,
-              title: "Mentor-Led Learning",
-              text: "Learn directly from HackoSquad mentors who share hands-on experience and real project guidance.",
+              title: "Expert Mentorship",
+              text: "Learn directly from HackoSquad mentors with real penetration testing experience and industry insights.",
             },
             {
               icon: <CheckBadgeIcon className="h-10 w-10 text-emerald-400 mb-3" />,
-              title: "Emerging Platform",
-              text: "We’re a growing cybersecurity academy, focused on building trust, community, and real skill-based credentials.",
+              title: "Career Growth",
+              text: "Build a portfolio of real skills and verifiable certifications that open doors in cybersecurity roles.",
             },
           ].map((f, i) => (
             <div
@@ -186,60 +202,124 @@ export default function Landing() {
 
         {/* Programs */}
         <section id="programs" className="mx-auto max-w-6xl px-6 py-14">
-          <h2 className="text-2xl font-bold mb-6">Programs</h2>
+          <h2 className="text-2xl font-bold mb-2">Our Programs</h2>
+          <p className="text-slate-400 text-sm mb-6">Learn practical cybersecurity skills with hands-on labs, videos, and expert mentorship. Get certified with verifiable credentials.</p>
           <div className="grid md:grid-cols-2 gap-6">
-            {/* MJPT - larger card with icon */}
+            {/* MJPT - Course + Certification */}
             <div className="rounded-2xl bg-[#120F18] p-6 md:p-8">
-              <div className="grid md:grid-cols-2 gap-6 items-center min-h-[340px]">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Left: Content */}
                 <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max">
-                    <AcademicCapIcon className="h-4 w-4" /> MJPT
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max mb-3">
+                    <AcademicCapIcon className="h-4 w-4" /> MJPT Program
                   </div>
-                  <h3 className="mt-3 text-2xl font-bold">24‑Hour Practical Exam</h3>
-                  <p className="mt-2 text-slate-300 text-sm">Two targets (Linux & Windows). Report‑based submission.</p>
-                  <ul className="mt-3 text-slate-300 text-sm list-disc ml-5 space-y-1">
-                    <li>Evidence‑driven assessment</li>
-                    <li>Voucher‑based access</li>
-                    <li>Verifiable certificate</li>
-                  </ul>
-                  <div className="mt-5 flex gap-3">
-                    <Link to="/signup" className="px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold">Get your voucher now</Link>
-                    <Link to="/mjpt" className="px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold">Learn more</Link>
+                  <h3 className="text-2xl font-bold text-slate-100 mb-2">MaxSec Junior Penetration Tester</h3>
+                  <p className="text-slate-300 text-sm mb-4"><strong>Enroll in our comprehensive MJPT course</strong> featuring video tutorials, detailed presentations, and hands-on labs on Linux & Windows environments.</p>
+                  
+                  <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-lg p-3 mb-4">
+                    <div className="text-emerald-300 font-semibold text-sm">✨ Special Offer</div>
+                    <div className="text-slate-300 text-xs mt-1">Get a <strong>FREE MJPT Exam Voucher</strong> when you enroll</div>
+                    <div className="text-emerald-300 text-xs mt-1 font-semibold">90% OFF for first 100 users</div>
                   </div>
                 </div>
-                <div className="relative">
+
+                {/* Right: Image */}
+                <div className="relative flex items-center justify-center">
                   <div className="absolute -inset-6 -z-10 blur-2xl opacity-70" aria-hidden>
                     <div className="h-full w-full bg-[radial-gradient(circle_at_60%_50%,#120F18_0%,transparent_60%)]" />
                   </div>
-                  <img src="/icon.png" alt="MJPT Icon" className="w-full max-h-[300px] md:max-h-[360px] object-contain ml-auto" onError={(e)=>{e.currentTarget.onerror=null; e.currentTarget.src='/logo.png'}} />
+                  <img src="/icon.png" alt="MJPT Icon" className="w-full max-h-[280px] object-contain" onError={(e)=>{e.currentTarget.onerror=null; e.currentTarget.src='/logo.png'}} />
+                </div>
+              </div>
+
+              {/* Bottom: Features + Buttons Rectangle */}
+              <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-6">
+                <div className="grid md:grid-cols-3 gap-4 mb-6">
+                  <div className="text-center">
+                    <div className="text-slate-300 text-sm space-y-1">
+                      <BookOpenIcon className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+                      <div className="font-semibold text-slate-100">Course</div>
+                      <div className="text-xs text-slate-400">Videos, PPTs, and lab exercises</div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-slate-300 text-sm space-y-1">
+                      <ClockIcon className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+                      <div className="font-semibold text-slate-100">Free Exam</div>
+                      <div className="text-xs text-slate-400">24-hour practical assessment</div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-slate-300 text-sm space-y-1">
+                      <CheckBadgeIcon className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+                      <div className="font-semibold text-slate-100">Certificate</div>
+                      <div className="text-xs text-slate-400">Verifiable industry credential</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <Link to="/signup" className="flex-1 px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold text-center">Enroll Now</Link>
+                  <Link to="/mjpt" className="flex-1 px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold text-center">Exam Details</Link>
                 </div>
               </div>
             </div>
 
-            {/* Corporate / Custom Training - larger card with icon */}
+            {/* Corporate / Enterprise */}
             <div className="rounded-2xl bg-[#100B15] p-6 md:p-8">
-              <div className="grid md:grid-cols-2 gap-6 items-center min-h-[340px]">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Left: Content */}
                 <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max">
-                    <UsersIcon className="h-4 w-4" /> Corporate / Custom Training
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs font-semibold w-max mb-3">
+                    <UsersIcon className="h-4 w-4" /> Enterprise
                   </div>
-                  <h3 className="mt-3 text-2xl font-bold">Team‑Ready, Tailored Programs</h3>
-                  <p className="mt-2 text-slate-300 text-sm">Custom curricula for companies and institutions.</p>
-                  <ul className="mt-3 text-slate-300 text-sm list-disc ml-5 space-y-1">
-                    <li>Role‑based learning paths</li>
-                    <li>Onsite or remote delivery</li>
-                    <li>Hands‑on labs and reporting</li>
-                  </ul>
-                  <div className="mt-5 flex gap-3">
-                    <Link to="/contact" className="px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold">Contact sales</Link>
-                    <Link to="/about" className="px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold">Learn more</Link>
+                  <h3 className="text-2xl font-bold text-slate-100 mb-2">Corporate & Enterprise Training</h3>
+                  <p className="text-slate-300 text-sm mb-4"><strong>Tailored cybersecurity programs for teams and organizations.</strong> We design custom curricula mapped to your specific security challenges and skill gaps.</p>
+                  
+                  <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-lg p-3 mb-4">
+                    <div className="text-emerald-300 font-semibold text-sm">🏢 For Organizations</div>
+                    <div className="text-slate-300 text-xs mt-1">Flexible delivery, proven results, and verifiable outcomes with our own tools included</div>
                   </div>
                 </div>
-                <div className="relative">
+
+                {/* Right: Image */}
+                <div className="relative flex items-center justify-center">
                   <div className="absolute -inset-6 -z-10 blur-2xl opacity-70" aria-hidden>
                     <div className="h-full w-full bg-[radial-gradient(circle_at_60%_50%,#120F18_0%,transparent_60%)]" />
                   </div>
-                  <img src="/corporate.png" alt="Corporate training" className="w-full max-h-[300px] md:max-h-[360px] object-contain ml-auto" />
+                  <img src="/corporate.png" alt="Corporate training" className="w-full max-h-[280px] object-contain" />
+                </div>
+              </div>
+
+              {/* Bottom: Features + Buttons Rectangle */}
+              <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-6">
+                <div className="grid md:grid-cols-3 gap-4 mb-6">
+                  <div className="text-center">
+                    <div className="text-slate-300 text-sm space-y-1">
+                      <AdjustmentsHorizontalIcon className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+                      <div className="font-semibold text-slate-100">Custom Design</div>
+                      <div className="text-xs text-slate-400">Role-based learning paths</div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-slate-300 text-sm space-y-1">
+                      <MapPinIcon className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+                      <div className="font-semibold text-slate-100">Flexible Delivery</div>
+                      <div className="text-xs text-slate-400">Onsite or remote training</div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-slate-300 text-sm space-y-1">
+                      <LightBulbIcon className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
+                      <div className="font-semibold text-slate-100">Hands-On Labs</div>
+                      <div className="text-xs text-slate-400">Real labs and practical assessments</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <Link to="/contact" className="flex-1 px-4 py-2 rounded-md bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 text-sm font-semibold text-center">Contact Sales</Link>
+                  <Link to="/about" className="flex-1 px-4 py-2 rounded-md bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 text-sm font-semibold text-center">Learn More</Link>
                 </div>
               </div>
             </div>
@@ -278,6 +358,95 @@ export default function Landing() {
           </Link>
         </section>
       </main>
+
+      {/* FOMO Popup */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-md w-full rounded-2xl bg-gradient-to-br from-[#120F18] to-[#0a0f14] border border-emerald-400/30 p-8 shadow-2xl animate-bounce-in">
+            {/* Close button */}
+            <button
+              onClick={() => setShowPopup(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+
+            {/* Content */}
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-400/30 mb-4">
+                <SparklesIcon className="h-6 w-6 text-emerald-400" />
+              </div>
+              
+              <h2 className="text-2xl font-extrabold text-slate-100 mb-2">
+                Claim Your Free MJPT Certificate! 🎁
+              </h2>
+              
+              <p className="text-slate-300 text-sm mb-4">
+                Get a 24-hour report-based penetration testing exam by enrolling in our MJPT course.
+              </p>
+
+              {/* Offer Badge */}
+              <div className="bg-red-500/10 border border-red-400/30 rounded-lg p-3 mb-6">
+                <div className="text-red-200 text-xs font-semibold mb-1">⚡ LIMITED TIME OFFER</div>
+                <div className="text-emerald-300 text-lg font-extrabold">90% OFF</div>
+                <div className="text-slate-400 text-xs">First 100 users only!</div>
+              </div>
+
+              {/* Features */}
+              <ul className="text-left text-slate-300 text-xs space-y-2 mb-6 bg-white/5 rounded-lg p-3 border border-white/10">
+                <li className="flex items-start gap-2">
+                  <CheckBadgeIcon className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                  <span>24-hour practical exam</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckBadgeIcon className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                  <span>Report-based assessment</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckBadgeIcon className="h-4 w-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                  <span>Verifiable certificate</span>
+                </li>
+              </ul>
+
+              {/* CTA Button */}
+              <Link
+                to="/signup"
+                onClick={() => setShowPopup(false)}
+                className="w-full block px-4 py-3 rounded-lg bg-emerald-500/30 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/40 font-semibold text-sm transition-all mb-3"
+              >
+                Enroll Now & Claim Offer
+              </Link>
+
+              {/* Close link */}
+              <button
+                onClick={() => setShowPopup(false)}
+                className="text-slate-400 hover:text-slate-300 text-xs transition-colors"
+              >
+                Maybe later
+              </button>
+            </div>
+
+            {/* Corner accent */}
+            <div className="absolute -top-2 -right-2 w-20 h-20 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes bounce-in {
+          0% {
+            transform: scale(0.95) translateY(-20px);
+            opacity: 0;
+          }
+          100% {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+        }
+        .animate-bounce-in {
+          animation: bounce-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

@@ -36,7 +36,12 @@ export default function Privacy() {
 
       <section>
         <h2 className="text-lg font-semibold mb-2">Updates</h2>
-        <p className="text-sm text-slate-300">We may update this policy. We’ll post changes on this page.</p>
+        <p className="text-sm text-slate-300">We may update this policy. We'll post changes on this page.</p>
+      </section>
+
+      <section className="mt-8 pt-6 border-t border-white/10">
+        <h2 className="text-lg font-semibold mb-2">Managed By</h2>
+        <p className="text-sm text-slate-300">MaxSec Academy platform and initiative is managed by <span className="text-emerald-300 font-semibold">Shaikh Minhaz Mozamuddin</span>.</p>
       </section>
       </div>
     </div>
