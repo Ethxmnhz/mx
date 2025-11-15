@@ -298,7 +298,6 @@ const CourseDetails = () => {
                   <div className="flex-1">
                     <div className="text-sm font-medium text-slate-100">{module.title}</div>
                   </div>
-                  <span className="text-xs text-slate-500">Coming Soon</span>
                 </div>
               ))}
             </div>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ChatBubbleOvalLeftIcon, BanknotesIcon, CreditCardIcon } from '@heroicons/react/24/solid';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import toast from 'react-hot-toast';
@@ -8,6 +9,7 @@ export default function PaymentPage() {
 	const { courseId } = useParams();
 	const navigate = useNavigate();
 	const [step, setStep] = useState(1);
+	const [method, setMethod] = useState('DIRECT'); // DIRECT or PHONEPE
 	const [submitting, setSubmitting] = useState(false);
 	const [session, setSession] = useState(null);
 	const [form, setForm] = useState({ name: '', email: '', coupon: '' });
@@ -20,7 +22,16 @@ export default function PaymentPage() {
 
 	// Config and helpers
 	const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
-	const SUPPORT_WA = (import.meta?.env?.VITE_SUPPORT_WHATSAPP || import.meta?.env?.VITE_WHATSAPP_NUMBER || '').toString().replace(/[^0-9]/g, '');
+	// Default to +91 7039108259 if env is not set
+	const SUPPORT_WA = ((import.meta?.env?.VITE_SUPPORT_WHATSAPP || import.meta?.env?.VITE_WHATSAPP_NUMBER || '917039108259'))
+		.toString()
+		.replace(/[^0-9]/g, '');
+
+	const EXTRA_DIRECT_DISCOUNT = 50;
+	const payable = useMemo(() => {
+		const base = Number(session?.amount || 0);
+		return Math.max(0, base - (method === 'DIRECT' ? EXTRA_DIRECT_DISCOUNT : 0));
+	}, [session, method]);
 
 	const helpWhatsappUrl = useMemo(() => {
 		if (!SUPPORT_WA) return '';
@@ -28,14 +39,16 @@ export default function PaymentPage() {
 			`Hello MaxSec Academy Support,%0A%0A` +
 			`I have completed a payment and would like to share proof for verification.%0A` +
 			`Course: ${session?.course_title || 'N/A'}%0A` +
-			`Amount: ₹${session?.amount ?? ''}%0A` +
+			`Amount: ₹${(Number(session?.amount || 0) - (method === 'DIRECT' ? EXTRA_DIRECT_DISCOUNT : 0)) || ''}%0A` +
 			`Name: ${form.name || ''}%0A` +
 			`Email: ${form.email || ''}%0A` +
+			`${session?.checkout?.coupon ? `Coupon: ${session.checkout.coupon}%0A` : ''}` +
+			`Payment Method: ${method === 'DIRECT' ? 'Direct UPI/Bank' : 'PhonePe'}%0A` +
 			`Transaction/UTR (if available): ${proof.transaction_id || ''}%0A%0A` +
 			`Attaching screenshot…`
 		);
 		return `https://wa.me/${SUPPORT_WA}?text=${msg}`;
-	}, [SUPPORT_WA, session, form, proof]);
+	}, [SUPPORT_WA, session, form, proof, method]);
 
 	// Quick helper to copy text to clipboard with graceful fallback
 	const copyToClipboard = async (text, label = 'Copied') => {
@@ -117,7 +130,7 @@ export default function PaymentPage() {
 						body: JSON.stringify({
 					transaction_id: proof.transaction_id || undefined,
 					receipt_email: proof.receipt_email || undefined,
-							payment_method: 'UPI',
+							payment_method: method === 'DIRECT' ? 'UPI' : 'PHONEPE',
 							coupon: session?.checkout?.coupon || undefined
 				})
 			});
@@ -126,7 +139,7 @@ export default function PaymentPage() {
 				toast.error(data.message || 'Failed to submit payment');
 				return;
 			}
-			toast.success('Payment submitted. We will verify and grant access soon.');
+			toast.success('Payment submitted. We will verify and grant access within an hour.');
 			navigate('/my-learning');
 		} catch (err) {
 			toast.error('Failed to submit payment');
@@ -241,18 +254,32 @@ export default function PaymentPage() {
 									<div className="h-7 w-7 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 flex items-center justify-center text-sm font-semibold">2</div>
 									<h3 className="text-lg font-semibold text-slate-100">Pay the amount</h3>
 								</div>
-								<p className="text-sm text-slate-400">Pay ₹{session.amount} to the UPI ID or scan the QR. Then paste your UTR/transaction ID below.</p>
+								<p className="text-sm text-slate-400">Pay ₹{payable} to the UPI ID or scan the QR. Then paste your UTR/transaction ID below.</p>
 
-								{/* Methods row */}
+								{/* Methods row with selection */}
 								<div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4">
-										<div className="text-sm font-semibold text-emerald-200">UPI / QR (Recommended)</div>
-										<p className="text-xs text-emerald-200/80 mt-1">Pay via the QR or UPI ID below, then paste your UTR/transaction ID.</p>
-									</div>
-									<div className="rounded-xl border border-white/10 bg-white/5 p-4 opacity-70">
-										<div className="text-sm font-semibold text-slate-300">PhonePe</div>
-										<p className="text-xs text-slate-400 mt-1">Coming soon — meanwhile, please pay using UPI / QR and submit your UTR/transaction ID.</p>
-										<button disabled className="mt-3 px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-xs text-slate-400 cursor-not-allowed">PhonePe (coming soon)</button>
+									<button
+										type="button"
+										onClick={() => setMethod('DIRECT')}
+										className={`text-left rounded-xl border p-4 ${method === 'DIRECT' ? 'border-emerald-400/40 bg-emerald-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+									>
+										<div className="flex items-center gap-2">
+											<BanknotesIcon className="h-5 w-5 text-emerald-300" />
+											<div>
+												<div className="text-sm font-semibold text-slate-100">Direct UPI / Bank Transfer</div>
+												<div className="text-xs text-emerald-200/80">Extra ₹{EXTRA_DIRECT_DISCOUNT} discount for direct payment</div>
+											</div>
+										</div>
+									</button>
+									<div className="rounded-xl border border-white/10 bg-white/5 p-4 opacity-60">
+										<div className="flex items-center gap-2">
+											<CreditCardIcon className="h-5 w-5 text-slate-400" />
+											<div>
+												<div className="text-sm font-semibold text-slate-300">PhonePe</div>
+												<div className="text-xs text-slate-400">Currently unavailable — please use Direct UPI</div>
+											</div>
+										</div>
+										<button disabled className="mt-3 px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-xs text-slate-400 cursor-not-allowed">PhonePe (greyed out)</button>
 									</div>
 								</div>
 
@@ -277,6 +304,7 @@ export default function PaymentPage() {
 											</button>
 										</div>
 										<div className="text-[11px] text-slate-500">Session expires: {new Date(session.session_expires_at).toLocaleString()}</div>
+										<div className="text-[11px] text-slate-500">Prefer bank transfer? Message us on WhatsApp to get account details and still get ₹{EXTRA_DIRECT_DISCOUNT} off.</div>
 									</div>
 								</div>
 								<div className="mt-4 text-xs text-slate-400">
@@ -284,8 +312,12 @@ export default function PaymentPage() {
 									<ol className="list-decimal ml-5 mt-1 space-y-1">
 										<li>Pay the amount shown to the UPI ID above or scan the QR.</li>
 										<li>Copy the reference/UTR from your bank app, or note the receipt email.</li>
-										<li>Paste the Transaction/UTR below and submit for verification.</li>
+										<li><span className="font-semibold text-slate-200">Paste the Transaction/UTR below</span> and submit for verification.</li>
 									</ol>
+								</div>
+
+								<div className="mt-4 bg-emerald-500/10 border border-emerald-400/30 rounded-lg p-3 text-xs text-emerald-200">
+									Please make sure to enter your Transaction/UTR number in the field below. You can also WhatsApp your payment screenshot; we’ll verify and grant access within an hour.
 								</div>
 
 								<div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -316,8 +348,9 @@ export default function PaymentPage() {
 												href={helpWhatsappUrl || '#'}
 												target="_blank"
 												rel="noreferrer"
-												className={`px-3 py-1.5 rounded-md border ${helpWhatsappUrl ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
+												className={`px-3 py-1.5 rounded-md border inline-flex items-center gap-1 ${helpWhatsappUrl ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
 											>
+												<ChatBubbleOvalLeftIcon className="h-4 w-4" />
 												Send payment proof on WhatsApp {SUPPORT_WA ? `(+${SUPPORT_WA})` : ''}
 											</a>
 											<button
@@ -375,12 +408,18 @@ export default function PaymentPage() {
 												<span>-₹{Math.max(0, Number((Number(session.original_amount || 0) - Number(session.amount || 0)).toFixed(2)))}</span>
 											</div>
 										) : null}
+										{method === 'DIRECT' ? (
+											<div className="text-sm text-emerald-200 flex items-center justify-between">
+												<span>Direct payment discount</span>
+												<span>-₹{EXTRA_DIRECT_DISCOUNT}</span>
+											</div>
+										) : null}
 										<div className="border-t border-white/10 my-3"></div>
 										<div className="text-sm text-slate-100 flex items-center justify-between font-semibold">
 											<span>Total</span>
-											<span>₹{session.amount}</span>
+											<span>₹{payable}</span>
 										</div>
-										<div className="mt-2 text-[11px] text-slate-500">Payment method: Manual UPI (PhonePe coming soon)</div>
+										<div className="mt-2 text-[11px] text-slate-500">Payment method: {method === 'DIRECT' ? 'Direct UPI / Bank Transfer' : 'PhonePe (unavailable)'}</div>
 									</>
 								) : (
 									<div className="text-sm text-slate-400">Apply your coupon to see your total.</div>
@@ -389,7 +428,7 @@ export default function PaymentPage() {
 
 							<div className="bg-white/5 border border-white/10 rounded-2xl p-5">
 								<h4 className="text-sm font-semibold text-slate-100 mb-1">Need help?</h4>
-								<p className="text-xs text-slate-400">Share a screenshot on WhatsApp for quicker review.</p>
+								<p className="text-xs text-slate-400">Share your payment screenshot on WhatsApp for faster review.</p>
 								<div className="mt-2 flex items-center gap-2">
 									<button
 										className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-xs text-slate-200"
@@ -402,16 +441,16 @@ export default function PaymentPage() {
 										href={helpWhatsappUrl || '#'}
 										target="_blank"
 										rel="noreferrer"
-										className={`px-3 py-1.5 rounded-md border text-xs ${helpWhatsappUrl ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
+										className={`px-3 py-1.5 rounded-md border text-xs inline-flex items-center gap-1 ${helpWhatsappUrl ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
 									>
-										Open WhatsApp
+										<ChatBubbleOvalLeftIcon className="h-4 w-4" /> Open WhatsApp
 									</a>
 								</div>
-								<div className="mt-2 text-[11px] text-slate-500">Include your name, course, amount, and transaction ID.</div>
+								<div className="mt-2 text-[11px] text-slate-500">Include your name, course, amount, and transaction ID. We usually verify and grant access within an hour.</div>
 							</div>
 
 							<div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-								<div className="text-[11px] text-slate-500">✅ Manual verification by admin • 🔒 We never store card details • ⏱ Access usually granted within a few hours</div>
+								<div className="text-[11px] text-slate-500">✅ Manual verification by admin • 🔒 We never store card details • ⏱ Access usually granted within an hour</div>
 							</div>
 						</div>
 					</aside>
