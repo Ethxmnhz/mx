@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import DailymotionPlayer from '../components/DailymotionPlayer';
 import QuizView from '../components/QuizView';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -31,7 +31,6 @@ const CourseContent = () => {
   const [progress, setProgress] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(false);
-  const playerRef = useRef(null);
 
   // Load course content
   useEffect(() => {
@@ -43,19 +42,6 @@ const CourseContent = () => {
   useEffect(() => {
     if (activeContent?.id) {
       fetchComments(activeContent.id);
-    }
-  }, [activeContent]);
-
-  // Ensure the video player is brought into view when switching lessons
-  useEffect(() => {
-    if (activeContent && playerRef.current) {
-      try {
-        playerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Nudge up to account for the sticky top bar height
-        setTimeout(() => {
-          window.scrollBy({ top: -80, left: 0, behavior: 'smooth' });
-        }, 120);
-      } catch {}
     }
   }, [activeContent]);
 
@@ -393,12 +379,10 @@ const CourseContent = () => {
               {/* Content Body */}
               <div className="p-6">
                 {activeContent.file_type === 'video' ? (
-                  <div ref={playerRef} className="sticky top-16 z-10 scroll-mt-20">
-                    <DailymotionPlayer 
-                      embedUrl={activeContent.embed_url} 
-                      title={activeContent.lesson_title}
-                    />
-                  </div>
+                  <DailymotionPlayer 
+                    embedUrl={activeContent.embed_url} 
+                    title={activeContent.lesson_title}
+                  />
                 ) : activeContent.file_type === 'quiz' ? (
                   <div className="space-y-4">
                     <QuizView contentId={activeContent.id} onResult={(res) => {
