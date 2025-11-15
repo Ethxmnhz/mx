@@ -155,7 +155,12 @@ export default function PaymentPage() {
 				<div className="max-w-6xl mx-auto">
 					<div className="mb-5 flex items-end justify-between">
 						<div>
-							<h1 className="text-xl font-semibold text-slate-100">Checkout</h1>
+							<h1 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+								Checkout
+								<span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-200">
+									₹50 EXTRA OFF with Direct UPI
+								</span>
+							</h1>
 							<div className="text-xs text-slate-500">Secure manual checkout • UPI/QR • Admin verification</div>
 						</div>
 						<div className="hidden sm:block text-xs text-slate-500">Need help? Use the WhatsApp card on the right.</div>
@@ -254,6 +259,25 @@ export default function PaymentPage() {
 									<div className="h-7 w-7 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 flex items-center justify-center text-sm font-semibold">2</div>
 									<h3 className="text-lg font-semibold text-slate-100">Pay the amount</h3>
 								</div>
+								{session ? (
+									<div className="mb-3 rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-4">
+										<div className="flex flex-wrap items-center gap-2">
+											<BanknotesIcon className="h-5 w-5 text-emerald-300" />
+											{method === 'DIRECT' ? (
+												<div className="text-sm">
+													<span className="text-emerald-200 font-semibold">Direct UPI selected:</span>
+													<span className="ml-2 text-slate-400 line-through">₹{session.amount}</span>
+													<span className="ml-2 text-emerald-100 font-semibold">₹{payable}</span>
+													<span className="ml-2 text-emerald-200">(₹{EXTRA_DIRECT_DISCOUNT} EXTRA OFF)</span>
+												</div>
+											) : (
+												<div className="text-sm text-emerald-100">
+													Get <span className="font-semibold">₹{EXTRA_DIRECT_DISCOUNT} EXTRA OFF</span> — choose <span className="font-semibold">Direct UPI / Bank Transfer</span> above.
+												</div>
+											)}
+										</div>
+									</div>
+								) : null}
 								<p className="text-sm text-slate-400">Pay ₹{payable} to the UPI ID or scan the QR. Then paste your UTR/transaction ID below.</p>
 
 								{/* Methods row with selection */}
