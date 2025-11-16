@@ -97,15 +97,6 @@ export default function MJPT() {
                   Validate hands‑on penetration testing capability. Assess two targets (Linux + Windows),
                   gain meaningful access, and submit a professional report within 24 hours.
                 </p>
-                {/* Pricing note */}
-                <div className="mt-4 flex flex-wrap gap-2 text-sm">
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-200 border border-emerald-400/30">
-                    Free with MJPT course
-                  </span>
-                  <span className="px-2.5 py-1 rounded-full bg-white/5 text-slate-200 border border-white/10">
-                    Voucher only: ₹999
-                  </span>
-                </div>
                 <ul className="mt-4 text-slate-300 text-sm list-disc ml-5 space-y-1 max-w-xl">
                   <li>24‑hour, evidence‑driven assessment</li>
                   <li>Two targets: Linux & Windows</li>
@@ -113,7 +104,6 @@ export default function MJPT() {
                 </ul>
                 <div className="mt-6 flex flex-col sm:flex-row gap-3">
                   <Link to="/signup" className="px-6 py-3 rounded-lg bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 font-semibold">Get your voucher now</Link>
-                  <Link to="/login" className="px-6 py-3 rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 font-semibold">Buy voucher (Sign in)</Link>
                 </div>
                 <div className="mt-6 text-sm text-emerald-200/90">Vouchers are limited.</div>
               </div>
@@ -219,9 +209,8 @@ export default function MJPT() {
           <div className="inline-flex flex-col items-center gap-3 px-6 py-5">
             <div className="text-emerald-200/90 text-sm">Vouchers are limited</div>
             <div className="text-xl font-semibold">Secure access. Demonstrate capability. Earn recognition.</div>
-            <div className="flex gap-3 mt-1 flex-wrap justify-center">
+            <div className="flex gap-3 mt-1">
               <Link to="/signup" className="px-6 py-2 rounded-lg bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 font-semibold">Get your voucher now</Link>
-              <Link to="/login" className="px-6 py-2 rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 font-semibold">Buy voucher (Sign in)</Link>
               <Link to="/contact" className="px-6 py-2 rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 font-semibold">Talk to Us</Link>
             </div>
           </div>

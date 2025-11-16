@@ -113,7 +113,6 @@ export default function MJPT() {
                 </ul>
                 <div className="mt-6 flex flex-col sm:flex-row gap-3">
                   <Link to="/signup" className="px-6 py-3 rounded-lg bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 font-semibold">Get your voucher now</Link>
-                  <Link to="/login" className="px-6 py-3 rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 font-semibold">Buy voucher (Sign in)</Link>
                 </div>
                 <div className="mt-6 text-sm text-emerald-200/90">Vouchers are limited.</div>
               </div>
@@ -219,9 +218,8 @@ export default function MJPT() {
           <div className="inline-flex flex-col items-center gap-3 px-6 py-5">
             <div className="text-emerald-200/90 text-sm">Vouchers are limited</div>
             <div className="text-xl font-semibold">Secure access. Demonstrate capability. Earn recognition.</div>
-            <div className="flex gap-3 mt-1 flex-wrap justify-center">
+            <div className="flex gap-3 mt-1">
               <Link to="/signup" className="px-6 py-2 rounded-lg bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 hover:bg-emerald-500/30 font-semibold">Get your voucher now</Link>
-              <Link to="/login" className="px-6 py-2 rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 font-semibold">Buy voucher (Sign in)</Link>
               <Link to="/contact" className="px-6 py-2 rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10 font-semibold">Talk to Us</Link>
             </div>
           </div>
