@@ -6,7 +6,6 @@ const supabase = connectSupabase();
 const supabaseAdmin = connectSupabaseAdmin();
 
 // Manual payment flow - we store pending manual payments and let admins approve them
-// Server-side direct UPI discount enforced via env DIRECT_UPI_EXTRA_DISCOUNT (amount in INR, default 50)
 
 export const createPaymentSession = async (req, res) => {
   try {
@@ -96,9 +95,6 @@ export const createCheckoutSession = async (req, res) => {
     }
     const original = Number(course.price) || 0;
     const discounted = Math.max(0, Number((original * (1 - discountPct / 100)).toFixed(2)));
-    const directDiscount = Math.max(0, Number(process.env.DIRECT_UPI_EXTRA_DISCOUNT || 50));
-    // Final amount user should pay via manual UPI path (coupon + direct discount applied)
-    const finalManualAmount = Math.max(0, Number((discounted - directDiscount).toFixed(2)));
 
     return res.json({
       courseId: course.id,
@@ -106,9 +102,7 @@ export const createCheckoutSession = async (req, res) => {
       thumbnail: course.thumbnail,
       original_amount: original,
       discount_percent: discountPct,
-      direct_upi_extra_discount: directDiscount,
-      amount: finalManualAmount,
-      base_amount_before_direct_discount: discounted,
+      amount: discounted,
       currency: 'INR',
       upi_qr: process.env.MANUAL_UPI_QR || null,
       upi_address: process.env.MANUAL_UPI || null,
@@ -189,8 +183,6 @@ export const submitManualPayment = async (req, res) => {
     }
     const original = Number(course.price) || 0;
     const discountedAmount = Math.max(0, Number((original * (1 - discountPct / 100)).toFixed(2)));
-    const directDiscount = (safeMethod.toUpperCase() === 'UPI') ? Math.max(0, Number(process.env.DIRECT_UPI_EXTRA_DISCOUNT || 50)) : 0;
-    const finalAmount = Math.max(0, Number((discountedAmount - directDiscount).toFixed(2)));
 
     const { error: insertError, data: inserted } = await supabaseAdmin
       .from('manual_payments')
@@ -198,7 +190,7 @@ export const submitManualPayment = async (req, res) => {
         {
           user_id: user.id,
           course_id: courseId,
-          amount: finalAmount,
+          amount: discountedAmount,
           payment_method: safeMethod,
           transaction_id: safeTxn || null,
           receipt_email: safeReceipt || null,
@@ -904,54 +896,9 @@ export const phonePeOrderStatus = async (req, res) => {
 // Placeholder for PhonePe webhook callback (to be secured with signature verification once keys provided)
 export const phonePeCallback = async (req, res) => {
   try {
-    const signatureHeader = req.headers['x-phonepe-signature'] || req.headers['x-verify'];
-    if (!signatureHeader) {
-      return res.status(400).json({ message: 'Missing signature header' });
-    }
-    if (!process.env.PHONEPE_CLIENT_SECRET) {
-      return res.status(500).json({ message: 'Server missing PhonePe client secret' });
-    }
-    const rawBody = req.rawBody || JSON.stringify(req.body || {});
-    const expectedHmac = crypto
-      .createHmac('sha256', process.env.PHONEPE_CLIENT_SECRET)
-      .update(rawBody)
-      .digest('hex');
-    if (expectedHmac !== signatureHeader) {
-      return res.status(401).json({ message: 'Invalid signature' });
-    }
-    const payload = req.body || {};
-    const orderId = payload?.merchantOrderId || payload?.orderId || null;
-    const state = payload?.state || payload?.transactionState || payload?.status || 'UNKNOWN';
-    if (orderId && (state === 'COMPLETED' || state === 'SUCCESS' || state === 'PAID')) {
-      const { data: paymentRow } = await supabaseAdmin
-        .from('manual_payments')
-        .select('*')
-        .eq('transaction_id', orderId)
-        .single();
-      if (paymentRow && paymentRow.status !== 'approved') {
-        const { data: existingEnroll } = await supabaseAdmin
-          .from('enrollments')
-          .select('id')
-          .eq('user_id', paymentRow.user_id)
-          .eq('course_id', paymentRow.course_id)
-          .eq('status', 'active')
-          .single();
-        if (!existingEnroll) {
-          const { error: enrollErr } = await supabaseAdmin
-            .from('enrollments')
-            .insert([
-              { user_id: paymentRow.user_id, course_id: paymentRow.course_id, status: 'active', payment_id: orderId, amount_paid: paymentRow.amount }
-            ]);
-          if (enrollErr) console.error('Webhook enrollment error:', enrollErr);
-        }
-        const { error: updateErr } = await supabaseAdmin
-          .from('manual_payments')
-          .update({ status: 'approved', processed_at: new Date().toISOString() })
-          .eq('id', paymentRow.id);
-        if (updateErr) console.error('Webhook manual_payments update error:', updateErr);
-      }
-    }
-    res.json({ received: true, verified: true });
+    // Later: verify signature headers, parse body, update payment status & enrollment
+    console.log('PhonePe callback received payload:', req.body);
+    res.json({ received: true });
   } catch (err) {
     console.error('phonePeCallback error:', err);
     res.status(500).json({ message: 'Callback handling failed' });
