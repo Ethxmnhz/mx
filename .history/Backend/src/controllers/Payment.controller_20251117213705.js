@@ -669,16 +669,12 @@ export const listCouponUsages = async (req, res) => {
   }
 };
 
-// ========================= PHONEPE INTEGRATION (Standard Checkout v2) =========================
+// ========================= PHONEPE INTEGRATION (Standard Checkout) =========================
 // Environment variables expected:
 // PHONEPE_CLIENT_ID, PHONEPE_CLIENT_SECRET, PHONEPE_CLIENT_VERSION, PHONEPE_MERCHANT_ID
 // PHONEPE_ENV = 'sandbox' | 'production'
 // SITE_URL for redirect/callback construction
 // NOTE: We do not apply the extra ₹50 manual UPI discount to PhonePe payments.
-
-// OAuth token cache
-let cachedAuthToken = null;
-let tokenExpiry = 0;
 
 function getPhonePeBase() {
   const env = (process.env.PHONEPE_ENV || 'sandbox').toLowerCase();
@@ -686,45 +682,11 @@ function getPhonePeBase() {
   return 'https://api-preprod.phonepe.com/apis/pg-sandbox';
 }
 
-function getPhonePeAuthBase() {
-  const env = (process.env.PHONEPE_ENV || 'sandbox').toLowerCase();
-  if (env === 'production') return 'https://api.phonepe.com/apis/identity-manager';
-  return 'https://api-preprod.phonepe.com/apis/pg-sandbox';
-}
-
 async function getPhonePeAuthToken() {
-  // Check if cached token is still valid (refresh 5 minutes before expiry)
-  const now = Date.now();
-  if (cachedAuthToken && tokenExpiry > now + 300000) {
-    return cachedAuthToken;
-  }
-
-  // Fetch new OAuth token
-  try {
-    const authBase = getPhonePeAuthBase();
-    const params = new URLSearchParams({
-      client_id: process.env.PHONEPE_CLIENT_ID,
-      client_version: process.env.PHONEPE_CLIENT_VERSION,
-      client_secret: process.env.PHONEPE_CLIENT_SECRET,
-      grant_type: 'client_credentials'
-    });
-
-    const resp = await axios.post(`${authBase}/v1/oauth/token`, params, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      timeout: 10000
-    });
-
-    const data = resp.data;
-    cachedAuthToken = data.access_token;
-    // expires_at is in seconds (epoch), convert to milliseconds
-    tokenExpiry = (data.expires_at || 0) * 1000;
-    
-    console.log('PhonePe OAuth token refreshed, expires at:', new Date(tokenExpiry));
-    return cachedAuthToken;
-  } catch (err) {
-    console.error('Failed to get PhonePe auth token:', err?.response?.data || err.message);
-    throw new Error('PhonePe authentication failed');
-  }
+  // OAuth token fetch (if using Authorization API). For initial minimal implementation
+  // we assume Create Payment endpoint accepts client credentials via headers.
+  // If full OAuth required, implement POST /v1/oauth/token here and cache token.
+  return null; // Placeholder: PhonePe docs show OAuth path; many merchants use X-VERIFY older method.
 }
 
 // Helper to generate a unique merchant order id (keep length modest)
@@ -811,65 +773,51 @@ export const initiatePhonePePayment = async (req, res) => {
       console.warn('Failed to insert initiated PhonePe payment row:', insertErr);
     }
 
-    // Get OAuth token
-    let authToken;
-    try {
-      authToken = await getPhonePeAuthToken();
-    } catch (authErr) {
-      return res.status(500).json({ message: 'PhonePe authentication failed', details: authErr.message });
-    }
-
-    // Build create payment payload (Standard Checkout v2)
+    // Build create payment payload (Standard Checkout)
     const payload = {
+      merchantId: process.env.PHONEPE_MERCHANT_ID,
       merchantOrderId,
+      merchantUserId: user.id,
       amount: amountPaise,
-      paymentFlow: {
-        type: 'PG_CHECKOUT',
-        message: `Payment for ${course.title}`,
-        merchantUrls: {
-          redirectUrl
-        }
+      redirectUrl,
+      redirectMode: 'REDIRECT',
+      callbackUrl,
+      mobileNumber: user.phone || undefined,
+      paymentInstrument: {
+        type: 'PAY_PAGE'
       }
     };
 
-    // Add optional metadata if needed
-    if (code) {
-      payload.metaInfo = {
-        udf1: code,
-        udf2: user.email || '',
-        udf3: course.title
-      };
-    }
+    // PhonePe requires base64 encoded payload + SHA256 signature
+    const payloadString = JSON.stringify(payload);
+    const base64Payload = Buffer.from(payloadString).toString('base64');
+    
+    // Generate X-VERIFY signature: SHA256(base64Payload + "/pg/v1/pay" + salt_key) + ### + salt_index
+    const saltKey = process.env.PHONEPE_CLIENT_SECRET;
+    const saltIndex = process.env.PHONEPE_SALT_INDEX || '1';
+    const stringToHash = base64Payload + '/pg/v1/pay' + saltKey;
+    const signature = crypto.createHash('sha256').update(stringToHash).digest('hex');
+    const xVerify = `${signature}###${saltIndex}`;
 
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `O-Bearer ${authToken}`
+      'X-VERIFY': xVerify
     };
 
     let responseData;
     try {
-      const resp = await axios.post(`${base}/checkout/v2/pay`, payload, { headers, timeout: 10000 });
+      const resp = await axios.post(`${base}/pg/v1/pay`, { request: base64Payload }, { headers, timeout: 10000 });
       responseData = resp.data;
     } catch (apiErr) {
       console.error('PhonePe create payment error:', apiErr?.response?.data || apiErr.message);
       return res.status(502).json({ message: 'Failed to initiate PhonePe payment', details: apiErr?.response?.data || null });
     }
 
-    // v2 API returns redirectUrl directly in response
-    const payUrl = responseData?.redirectUrl || null;
-    const phonePeOrderId = responseData?.orderId || null;
-    
+    // Expect a payPageUrl or similar field to redirect user
+    const payUrl = responseData?.data?.instrumentResponse?.redirectInfo?.url || null;
     if (!payUrl) {
       console.error('PhonePe response structure:', JSON.stringify(responseData, null, 2));
-      return res.status(500).json({ message: 'PhonePe response missing redirect URL', raw: responseData });
-    }
-
-    // Update payment row with PhonePe's orderId for tracking
-    if (phonePeOrderId) {
-      await supabaseAdmin
-        .from('manual_payments')
-        .update({ receipt_email: phonePeOrderId }) // Store PhonePe orderId in a field for reference
-        .eq('transaction_id', merchantOrderId);
+      return res.status(500).json({ message: 'PhonePe response missing pay page URL', raw: responseData });
     }
 
     res.json({
@@ -891,24 +839,20 @@ export const phonePeOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params; // merchantOrderId
     const user = req.user;
-    
-    // Get OAuth token
-    let authToken;
-    try {
-      authToken = await getPhonePeAuthToken();
-    } catch (authErr) {
-      return res.status(500).json({ message: 'PhonePe authentication failed' });
+    const required = ['PHONEPE_CLIENT_ID', 'PHONEPE_CLIENT_SECRET', 'PHONEPE_CLIENT_VERSION', 'PHONEPE_MERCHANT_ID'];
+    const missing = required.filter(k => !process.env[k]);
+    if (missing.length) {
+      return res.status(500).json({ message: `PhonePe configuration missing: ${missing.join(', ')}` });
     }
-    
     const base = getPhonePeBase();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `O-Bearer ${authToken}`
+      'X-CLIENT-ID': process.env.PHONEPE_CLIENT_ID,
+      'X-CLIENT-VERSION': process.env.PHONEPE_CLIENT_VERSION,
+      'X-CLIENT-SECRET': process.env.PHONEPE_CLIENT_SECRET,
     };
-    
     let data;
     try {
-      // v2 API endpoint: GET /checkout/v2/order/{merchantOrderId}/status
       const resp = await axios.get(`${base}/checkout/v2/order/${orderId}/status`, { headers, timeout: 8000 });
       data = resp.data;
     } catch (apiErr) {
@@ -916,9 +860,9 @@ export const phonePeOrderStatus = async (req, res) => {
       return res.status(502).json({ message: 'Failed to query status', details: apiErr?.response?.data || null });
     }
 
-    const state = data?.state || 'UNKNOWN';
+    const status = data?.data?.state || data?.state || 'UNKNOWN';
     // On success: mark manual_payments row approved and create enrollment if not present
-    if (state === 'COMPLETED') {
+    if (status === 'COMPLETED' || status === 'SUCCESS' || status === 'PAID') {
       // Fetch payment row
       const { data: paymentRow } = await supabaseAdmin
         .from('manual_payments')
