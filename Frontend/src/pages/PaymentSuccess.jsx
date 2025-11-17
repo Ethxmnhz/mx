@@ -27,18 +27,33 @@ const PaymentSuccess = () => {
       });
       const data = await res.json().catch(() => ({}));
       setLastResponse(data);
-      const state = data?.raw?.data?.state || data?.raw?.state || 'UNKNOWN';
-      const metaCourse = data?.raw?.data?.customMeta?.courseId || data?.raw?.data?.metadata?.courseId;
-      if (metaCourse) setCourseId(metaCourse);
+      
+      // Backend returns: { orderId, phonePeOrderId, state, amount, paymentDetails, success }
+      const state = data?.state || 'UNKNOWN';
+      const success = data?.success || false;
+      
+      console.log('Payment status check:', { orderId, state, success, data });
 
-      if (['COMPLETED','SUCCESS','PAID'].includes(state)) {
+      if (state === 'COMPLETED' || success) {
         setStatus('SUCCESS');
         toast.success('Payment confirmed! Activating access...');
+        // Redirect to my-learning to see all courses
         setTimeout(() => {
-          if (metaCourse) navigate(`/courses/${metaCourse}/learn`);
-          else navigate('/my-learning');
+          navigate('/my-learning');
         }, 1500);
-      } else if (['FAILED','DECLINED','CANCELLED'].includes(state)) {
+      } else if (state === 'FAILED') {
+        setStatus('FAILED');
+        toast.error('Payment failed or cancelled.');
+      } else {
+        setStatus('PENDING');
+      }
+    } catch (e) {
+      console.error('Status check error:', e);
+      setStatus('ERROR');
+    } finally {
+      setAttempts(a => a + 1);
+    }
+  }, [orderId, API_BASE, navigate]);
         setStatus('FAILED');
         toast.error('Payment failed or cancelled.');
       } else {
@@ -81,7 +96,7 @@ const PaymentSuccess = () => {
         )}
         {lastResponse && status !== 'SUCCESS' && (
           <pre className="mt-6 text-left text-[10px] max-h-48 overflow-auto p-2 rounded bg-black/40 border border-white/10 text-slate-400">
-            {JSON.stringify(lastResponse.raw?.data || lastResponse.raw || {}, null, 2)}
+            {JSON.stringify(lastResponse, null, 2)}
           </pre>
         )}
         {status === 'SUCCESS' && courseId && (
