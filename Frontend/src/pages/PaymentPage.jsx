@@ -9,7 +9,8 @@ export default function PaymentPage() {
 	const { courseId } = useParams();
 	const navigate = useNavigate();
 	const [step, setStep] = useState(1);
-	const [method, setMethod] = useState('DIRECT'); // DIRECT or PHONEPE
+	// const [method, setMethod] = useState('DIRECT'); // DIRECT or PHONEPE - MANUAL PAYMENT DISABLED
+	const method = 'PHONEPE'; // Only PhonePe payment available
 	const [phonePeLoading, setPhonePeLoading] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [session, setSession] = useState(null);
@@ -272,6 +273,7 @@ export default function PaymentPage() {
 								</div>
 
 								{/* Discount Banner */}
+								{/* MANUAL PAYMENT TEMPORARILY DISABLED
 								{session && method === 'DIRECT' && (
 									<div className="mb-4 rounded-xl border-2 border-emerald-400 bg-emerald-500/10 p-4">
 										<div className="flex items-center gap-3">
@@ -289,10 +291,11 @@ export default function PaymentPage() {
 										</div>
 									</div>
 								)}
+								*/}
 
 								{/* Payment Method Selection */}
+								{/* MANUAL PAYMENT TEMPORARILY DISABLED - Only PhonePe available
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-									{/* Manual UPI Payment */}
 									<button
 										type="button"
 										onClick={() => setMethod('DIRECT')}
@@ -307,7 +310,6 @@ export default function PaymentPage() {
 											)}
 										</div>
 										
-										{/* Payment App Icons */}
 										<div className="flex items-center gap-3 mb-3">
 											<div className="bg-white rounded-lg p-2 shadow-md">
 												<img src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-logo-icon-download-in-svg-png-gif-file-formats--brand-payments-pack-logos-icons-2249170.png" alt="Google Pay" className="h-8 w-8" />
@@ -339,7 +341,6 @@ export default function PaymentPage() {
 										)}
 									</button>
 
-									{/* PhonePe Gateway */}
 									<button
 										type="button"
 										onClick={() => setMethod('PHONEPE')}
@@ -352,7 +353,6 @@ export default function PaymentPage() {
 											</span>
 										</div>
 
-										{/* Payment Options Icons */}
 										<div className="flex items-center gap-3 mb-3">
 											<div className="bg-white rounded-lg p-2 shadow-md">
 												<img src="https://cdn.iconscout.com/icon/free/png-256/free-phonepe-logo-icon-download-in-svg-png-gif-file-formats--payment-brand-bank-world-logos-icons-1583109.png" alt="PhonePe" className="h-8 w-8" />
@@ -390,7 +390,17 @@ export default function PaymentPage() {
 										)}
 									</button>
 								</div>
+								*/}
 
+								{/* PHONEPE PAYMENT - SINGLE OPTION */}
+								<div className="mb-5">
+									<div className="text-center mb-4">
+										<h3 className="text-lg font-bold text-slate-100 mb-1">Pay Securely Online</h3>
+										<p className="text-sm text-slate-400">Multiple payment options available</p>
+									</div>
+								</div>
+
+								{/* MANUAL UPI PAYMENT - TEMPORARILY DISABLED
 								{method === 'DIRECT' && (
 									<>
 										<div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-4 mb-4">
@@ -414,9 +424,9 @@ export default function PaymentPage() {
 													<div className="text-slate-500 text-sm text-center py-12 bg-black/20 rounded-lg">QR not available</div>
 												)}
 												<div className="mt-3 flex items-center justify-center gap-2 text-xs text-slate-400">
-													<img src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-logo-icon-download-in-svg-png-gif-file-formats--brand-payments-pack-logos-icons-2249170.png" alt="GPay" className="h-5 w-5" />
-													<img src="https://cdn.iconscout.com/icon/free/png-256/free-phonepe-logo-icon-download-in-svg-png-gif-file-formats--payment-brand-bank-world-logos-icons-1583109.png" alt="PhonePe" className="h-5 w-5" />
-													<img src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-logo-icon-download-in-svg-png-gif-file-formats--payment-brand-shopping-pack-logos-icons-2249158.png" alt="Paytm" className="h-5 w-5" />
+													<img src="/icons8-google-pay-48.png" alt="GPay" className="h-5 w-5" />
+													<img src="/icons8-phone-pe-48.png" alt="PhonePe" className="h-5 w-5" />
+													<img src="/icons8-visa-48.png" alt="Visa" className="h-5 w-5" />
 													<span>or any UPI app</span>
 												</div>
 											</div>
@@ -456,6 +466,7 @@ export default function PaymentPage() {
 										</div>
 									</>
 								)}
+								END MANUAL UPI PAYMENT */}
 								{method === 'PHONEPE' && (
 									<div className="rounded-xl border-2 border-purple-400 bg-gradient-to-br from-purple-500/10 to-purple-600/10 p-6">
 										<div className="text-center mb-5">
@@ -466,32 +477,20 @@ export default function PaymentPage() {
 										{/* Payment Options */}
 										<div className="grid grid-cols-4 gap-3 mb-5">
 											<div className="bg-white rounded-xl p-3 text-center">
-												<img src="https://cdn.iconscout.com/icon/free/png-256/free-phonepe-logo-icon-download-in-svg-png-gif-file-formats--payment-brand-bank-world-logos-icons-1583109.png" alt="PhonePe" className="h-10 w-10 mx-auto mb-1" />
+												<img src="/icons8-phone-pe-48.png" alt="PhonePe" className="h-10 w-10 mx-auto mb-1" />
 												<div className="text-[10px] text-slate-600 font-medium">PhonePe</div>
 											</div>
 											<div className="bg-white rounded-xl p-3 text-center">
-												<img src="https://cdn.iconscout.com/icon/free/png-256/free-google-pay-logo-icon-download-in-svg-png-gif-file-formats--brand-payments-pack-logos-icons-2249170.png" alt="Google Pay" className="h-10 w-10 mx-auto mb-1" />
+												<img src="/icons8-google-pay-48.png" alt="Google Pay" className="h-10 w-10 mx-auto mb-1" />
 												<div className="text-[10px] text-slate-600 font-medium">Google Pay</div>
 											</div>
 											<div className="bg-white rounded-xl p-3 text-center">
-												<div className="h-10 w-10 mx-auto mb-1 flex items-center justify-center">
-													<svg className="h-8 w-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-														<rect x="2" y="5" width="20" height="14" rx="2" fill="currentColor" opacity="0.2"/>
-														<rect x="2" y="8" width="20" height="3" fill="currentColor"/>
-														<circle cx="6" cy="15" r="1.5" fill="currentColor"/>
-														<circle cx="10" cy="15" r="1.5" fill="currentColor"/>
-													</svg>
-												</div>
+												<img src="/atm-card.png" alt="Cards" className="h-10 w-10 mx-auto mb-1" />
 												<div className="text-[10px] text-slate-600 font-medium">Cards</div>
 											</div>
 											<div className="bg-white rounded-xl p-3 text-center">
-												<div className="h-10 w-10 mx-auto mb-1 flex items-center justify-center">
-													<svg className="h-8 w-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-														<path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/>
-														<path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" opacity="0.2"/>
-													</svg>
-												</div>
-												<div className="text-[10px] text-slate-600 font-medium">Banking</div>
+												<img src="/icons8-visa-48.png" alt="Visa" className="h-10 w-10 mx-auto mb-1" />
+												<div className="text-[10px] text-slate-600 font-medium">Visa</div>
 											</div>
 										</div>
 
@@ -552,6 +551,7 @@ export default function PaymentPage() {
 										</div>
 									</div>
 								)}
+								{/* TRANSACTION PROOF SUBMISSION - TEMPORARILY DISABLED
 								{method === 'DIRECT' && (
 								<div className="mt-6 bg-slate-800/50 border border-white/10 rounded-xl p-5">
 									<div className="flex items-start gap-3 mb-4">
@@ -627,15 +627,14 @@ export default function PaymentPage() {
 										>
 											{submitting ? 'Submitting...' : 'Submit Payment Proof'}
 										</button>
+										</div>
 									</div>
-								</div>
 								)}
+								END TRANSACTION PROOF SUBMISSION */}
 							</div>
 						</div>
 					)}
-					</div>
-
-					{/* Sidebar: sticky order summary and help */}
+					</div>					{/* Sidebar: sticky order summary and help */}
 					<aside className="space-y-4">
 						<div className="sticky top-4 space-y-4">
 							<div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
