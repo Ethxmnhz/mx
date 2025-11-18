@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChatBubbleOvalLeftIcon, BanknotesIcon, CreditCardIcon } from '@heroicons/react/24/solid';
+import { ChatBubbleOvalLeftIcon, BanknotesIcon, CreditCardIcon, QrCodeIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/solid';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import toast from 'react-hot-toast';
@@ -162,14 +162,14 @@ export default function PaymentPage() {
 					<div className="mb-5 flex items-end justify-between">
 						<div>
 							<h1 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
-								Checkout
+								Secure Checkout
 								<span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-200">
-									₹{directDiscount} EXTRA OFF with Direct UPI
+									Save ₹{directDiscount} with UPI
 								</span>
 							</h1>
-							<div className="text-xs text-slate-500">Secure manual checkout • UPI/QR • Admin verification</div>
+							<div className="text-xs text-slate-500">Multiple payment options • Instant verification</div>
 						</div>
-						<div className="hidden sm:block text-xs text-slate-500">Need help? Use the WhatsApp card on the right.</div>
+						<div className="hidden sm:block text-xs text-slate-500">Questions? Contact support via WhatsApp</div>
 					</div>
 
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -178,54 +178,51 @@ export default function PaymentPage() {
 						<div className="bg-white/5 border border-white/10 rounded-2xl p-6">
 							<div className="flex items-start gap-3 mb-2">
 								<div className="h-7 w-7 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 flex items-center justify-center text-sm font-semibold">1</div>
-								<h1 className="text-lg font-semibold text-slate-100">Confirm your details</h1>
+								<h1 className="text-lg font-semibold text-slate-100">Your Information</h1>
 							</div>
-							<p className="text-sm text-slate-400 mb-6">Enter your name, email, and coupon (optional). Then we'll show you where to pay.</p>
+							<p className="text-sm text-slate-400 mb-6">Enter your details to proceed to payment</p>
 							<div className="grid grid-cols-1 gap-4">
 								<div>
-									<label className="block text-xs text-slate-400">Full Name <span className="text-red-400">*</span></label>
+									<label className="block text-xs text-slate-400 font-medium mb-1">Full Name <span className="text-red-400">*</span></label>
 									<input
-										className={`mt-1 w-full rounded-md bg-black/30 border p-2 text-slate-100 ${nameOk ? 'border-white/10' : 'border-red-500/40'}`}
+										className={`w-full rounded-lg bg-black/30 border p-2.5 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${nameOk ? 'border-white/10' : 'border-red-500/40'}`}
 										value={form.name}
 										onChange={e => setForm({ ...form, name: e.target.value })}
-										placeholder="Your name"
+										placeholder="John Doe"
 										aria-invalid={!nameOk}
-										aria-describedby="nameHelp"
 									/>
-									<div id="nameHelp" className="mt-1 text-[11px] text-slate-500">Enter at least 2 characters.</div>
 								</div>
 								<div>
-									<label className="block text-xs text-slate-400">Email <span className="text-red-400">*</span></label>
+									<label className="block text-xs text-slate-400 font-medium mb-1">Email Address <span className="text-red-400">*</span></label>
 									<input
-										className={`mt-1 w-full rounded-md bg-black/30 border p-2 text-slate-100 ${emailOk ? 'border-white/10' : 'border-red-500/40'}`}
+										className={`w-full rounded-lg bg-black/30 border p-2.5 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${emailOk ? 'border-white/10' : 'border-red-500/40'}`}
 										value={form.email}
 										onChange={e => setForm({ ...form, email: e.target.value })}
 										placeholder="you@example.com"
 										type="email"
 										aria-invalid={!emailOk}
-										aria-describedby="emailHelp"
 									/>
-									<div id="emailHelp" className="mt-1 text-[11px] text-slate-500">We'll send updates to this email.</div>
+									<div className="mt-1.5 text-[11px] text-slate-500">Course access link will be sent to this email</div>
 								</div>
 								<div>
-									<label className="block text-xs text-slate-400">Coupon (optional)</label>
+									<label className="block text-xs text-slate-400 font-medium mb-1">Coupon Code <span className="text-slate-500">(Optional)</span></label>
 									<input
-										className="mt-1 w-full rounded-md bg-black/30 border border-white/10 p-2 text-slate-100"
+										className="w-full rounded-lg bg-black/30 border border-white/10 p-2.5 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 uppercase"
 										value={form.coupon}
-										onChange={e => setForm({ ...form, coupon: e.target.value })}
-										placeholder="MS10 for 10% off"
+										onChange={e => setForm({ ...form, coupon: e.target.value.toUpperCase() })}
+										placeholder="Enter discount code"
 									/>
-									<div className="mt-1 text-[11px] text-slate-500">If valid, the discount will be applied automatically.</div>
+									<div className="mt-1.5 text-[11px] text-slate-500">Discounts applied automatically at checkout</div>
 								</div>
 							</div>
 							<div className="mt-6 flex justify-end items-center gap-3">
-								<button className="px-4 py-2 rounded-md bg-black/30 border border-white/10" onClick={() => navigate(-1)}>Cancel</button>
+								<button className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 hover:bg-black/50 transition-colors text-sm" onClick={() => navigate(-1)}>Cancel</button>
 								<button
-									className={`px-4 py-2 rounded-md border ${canContinue ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
+									className={`px-5 py-2.5 rounded-lg border font-medium text-sm transition-all ${canContinue ? 'bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
 									onClick={startCheckout}
 									disabled={!canContinue || submitting}
 								>
-									{submitting ? 'Processing…' : 'Show payment instructions'}
+									{submitting ? 'Processing…' : 'Continue to Payment'}
 								</button>
 							</div>
 						</div>
@@ -235,20 +232,25 @@ export default function PaymentPage() {
 						<div className="space-y-6">
 							{/* Payer confirmation card */}
 							<div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-								<h2 className="text-lg font-semibold text-slate-100 mb-2">Payer details</h2>
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-									<div>
-										<div className="text-slate-400">Full name</div>
-										<div className="text-slate-200 font-medium">{form.name || '—'}</div>
+								<h2 className="text-base font-semibold text-slate-100 mb-3 flex items-center gap-2">
+									<svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+									</svg>
+									Billing Information
+								</h2>
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+									<div className="bg-black/20 rounded-lg p-3">
+										<div className="text-slate-500 text-xs mb-1">Name</div>
+										<div className="text-slate-100 font-medium">{form.name || '—'}</div>
 									</div>
-									<div>
-										<div className="text-slate-400">Email</div>
-										<div className="text-slate-200 font-medium break-all">{form.email || '—'}</div>
+									<div className="bg-black/20 rounded-lg p-3">
+										<div className="text-slate-500 text-xs mb-1">Email</div>
+										<div className="text-slate-100 font-medium break-all">{form.email || '—'}</div>
 									</div>
 								</div>
-								<div className="mt-4">
-									<button className="px-3 py-1.5 rounded-md bg-black/30 border border-white/10 text-xs" onClick={() => setStep(1)}>Edit details</button>
-								</div>
+								<button className="mt-3 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-xs transition-colors" onClick={() => setStep(1)}>
+									Edit Information
+								</button>
 							</div>
 							<div className="bg-white/5 border border-white/10 rounded-2xl p-6">
 								<h2 className="text-lg font-semibold text-slate-100 mb-1">You're paying for</h2>
@@ -261,60 +263,76 @@ export default function PaymentPage() {
 
 							{/* Payment methods & instructions */}
 							<div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-								<div className="flex items-start gap-3 mb-2">
+								<div className="flex items-start gap-3 mb-4">
 									<div className="h-7 w-7 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 flex items-center justify-center text-sm font-semibold">2</div>
-									<h3 className="text-lg font-semibold text-slate-100">Pay the amount</h3>
+									<div>
+										<h3 className="text-lg font-semibold text-slate-100">Choose Payment Method</h3>
+										<p className="text-sm text-slate-400 mt-0.5">Select your preferred payment option</p>
+									</div>
 								</div>
-								{session ? (
-									<div className="mb-3 rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-4">
-										<div className="flex flex-wrap items-center gap-2">
-											<BanknotesIcon className="h-5 w-5 text-emerald-300" />
-											{method === 'DIRECT' ? (
-												<div className="text-sm">
-													<span className="text-emerald-200 font-semibold">Direct UPI selected:</span>
-													<span className="ml-2 text-slate-400 line-through">₹{baseAmountBeforeDirect}</span>
-													<span className="ml-2 text-emerald-100 font-semibold">₹{payable}</span>
-													<span className="ml-2 text-emerald-200">(₹{directDiscount} EXTRA OFF)</span>
+
+								{/* Discount Banner */}
+								{session && method === 'DIRECT' && (
+									<div className="mb-4 rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-4">
+										<div className="flex items-start gap-3">
+											<BanknotesIcon className="h-5 w-5 text-emerald-300 flex-shrink-0 mt-0.5" />
+											<div className="text-sm">
+												<div className="text-emerald-100 font-semibold mb-1">Direct UPI Discount Applied!</div>
+												<div className="text-slate-300">
+													<span className="line-through opacity-70">₹{baseAmountBeforeDirect}</span>
+													<span className="mx-2">→</span>
+													<span className="text-emerald-200 font-bold text-lg">₹{payable}</span>
+													<span className="ml-2 text-emerald-300">(Save ₹{directDiscount})</span>
 												</div>
-											) : (
-												<div className="text-sm text-emerald-100">
-													Get <span className="font-semibold">₹{directDiscount} EXTRA OFF</span> — choose <span className="font-semibold">Direct UPI / Bank Transfer</span> above.
-												</div>
-											)}
+											</div>
 										</div>
 									</div>
-								) : null}
-								<p className="text-sm text-slate-400">
-									{method === 'DIRECT'
-										? <>Pay ₹{payable} to the UPI ID or scan the QR. Then paste your UTR/transaction ID below.</>
-										: <>You will be redirected to the secure PhonePe gateway to complete payment.</>}
-								</p>
+								)}
 
-								{/* Methods row with selection */}
-								<div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+								{/* Payment Method Selection */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+									{/* UPI Direct Payment */}
 									<button
 										type="button"
 										onClick={() => setMethod('DIRECT')}
-										className={`text-left rounded-xl border p-4 ${method === 'DIRECT' ? 'border-emerald-400/40 bg-emerald-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+										className={`text-left rounded-xl border p-5 transition-all ${method === 'DIRECT' ? 'border-emerald-400/60 bg-emerald-500/15 ring-2 ring-emerald-500/30' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'}`}
 									>
-										<div className="flex items-center gap-2">
-											<BanknotesIcon className="h-5 w-5 text-emerald-300" />
-											<div>
-												<div className="text-sm font-semibold text-slate-100">Direct UPI / Bank Transfer</div>
-												<div className="text-xs text-emerald-200/80">Extra ₹{directDiscount} discount for direct payment</div>
+										<div className="flex items-start gap-3">
+											<div className="p-2 rounded-lg bg-emerald-500/20 border border-emerald-400/30">
+												<QrCodeIcon className="h-6 w-6 text-emerald-300" />
+											</div>
+											<div className="flex-1 min-w-0">
+												<div className="flex items-center gap-2 mb-1">
+													<div className="text-sm font-semibold text-slate-100">UPI / QR Code</div>
+													<span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-200 border border-emerald-400/30">
+														SAVE ₹{directDiscount}
+													</span>
+												</div>
+												<div className="text-xs text-slate-400 mb-2">Google Pay • PhonePe • Paytm • Any UPI App</div>
+												<div className="text-xs text-emerald-300 font-medium">✓ Instant discount applied</div>
 											</div>
 										</div>
 									</button>
+
+									{/* PhonePe Gateway */}
 									<button
 										type="button"
 										onClick={() => setMethod('PHONEPE')}
-										className={`text-left rounded-xl border p-4 ${method === 'PHONEPE' ? 'border-indigo-400/40 bg-indigo-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+										className={`text-left rounded-xl border p-5 transition-all ${method === 'PHONEPE' ? 'border-indigo-400/60 bg-indigo-500/15 ring-2 ring-indigo-500/30' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'}`}
 									>
-										<div className="flex items-center gap-2">
-											<CreditCardIcon className="h-5 w-5 text-indigo-300" />
-											<div>
-												<div className="text-sm font-semibold text-slate-100">PhonePe Gateway</div>
-												<div className="text-xs text-indigo-200/80">UPI • Cards • NetBanking</div>
+										<div className="flex items-start gap-3">
+											<div className="p-2 rounded-lg bg-indigo-500/20 border border-indigo-400/30">
+												<DevicePhoneMobileIcon className="h-6 w-6 text-indigo-300" />
+											</div>
+											<div className="flex-1 min-w-0">
+												<div className="text-sm font-semibold text-slate-100 mb-1 flex items-center gap-2">
+													PhonePe Gateway
+													<svg className="w-4 h-4 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
+														<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+													</svg>
+												</div>
+												<div className="text-xs text-slate-400 mb-2">Credit/Debit Cards • UPI • Net Banking</div>
+												<div className="text-xs text-indigo-300 font-medium">✓ Automated instant access</div>
 											</div>
 										</div>
 									</button>
@@ -322,36 +340,110 @@ export default function PaymentPage() {
 
 								{method === 'DIRECT' && (
 									<>
-										<p className="mt-4 text-sm text-slate-400">Scan QR or pay with UPI</p>
-										<div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-											<div className="bg-black/30 border border-white/10 rounded-lg p-3 text-center">
-												{session.upi_qr ? (
-													<img src={session.upi_qr} alt="UPI QR" className="w-full max-w-[240px] mx-auto rounded" />
-												) : (
-													<div className="text-slate-500 text-sm">QR not configured</div>
-												)}
-											</div>
-											<div className="space-y-2">
-												<div className="text-sm text-slate-300">UPI ID</div>
-												<div className="flex items-center gap-2">
-													<input readOnly className="flex-1 rounded-md bg-black/30 border border-white/10 p-2 text-slate-100 font-mono tracking-wide" value={session.upi_address || 'Not configured'} />
-													<button
-														className="px-2 py-1 rounded-md bg-emerald-500/15 text-emerald-200 border border-emerald-400/30 hover:bg-emerald-500/25 text-xs"
-														onClick={() => copyToClipboard(session.upi_address, 'UPI ID copied')}
-													>
-														Copy
-													</button>
+										<div className="bg-indigo-500/5 border border-indigo-400/20 rounded-xl p-4 mb-4">
+											<div className="flex items-start gap-3">
+												<svg className="w-5 h-5 text-indigo-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+												</svg>
+												<div className="text-xs text-slate-300">
+													<span className="font-semibold text-slate-100">How to pay:</span> Scan the QR code or use the UPI ID below with any UPI app. After payment, enter your transaction ID for verification.
 												</div>
-												<div className="text-[11px] text-slate-500">Session expires: {new Date(session.session_expires_at).toLocaleString()}</div>
-												<div className="text-[11px] text-slate-500">Prefer bank transfer? Message us on WhatsApp to get account details and still get ₹{directDiscount} off.</div>
+											</div>
+										</div>
+
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+											{/* QR Code */}
+											<div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-4">
+												<div className="flex items-center gap-2 mb-3">
+													<QrCodeIcon className="h-5 w-5 text-emerald-300" />
+													<span className="text-sm font-semibold text-slate-100">Scan QR Code</span>
+												</div>
+												{session.upi_qr ? (
+													<div className="bg-white rounded-lg p-3 shadow-lg">
+														<img src={session.upi_qr} alt="UPI QR" className="w-full max-w-[200px] mx-auto rounded" />
+													</div>
+												) : (
+													<div className="text-slate-500 text-sm text-center py-8 bg-black/20 rounded-lg">QR code not available</div>
+												)}
+												<div className="mt-3 text-[11px] text-slate-400 text-center">
+													Use Google Pay, PhonePe, Paytm or any UPI app
+												</div>
+											</div>
+
+											{/* UPI ID */}
+											<div className="space-y-3">
+												<div>
+													<div className="flex items-center gap-2 mb-2">
+														<DevicePhoneMobileIcon className="h-5 w-5 text-emerald-300" />
+														<span className="text-sm font-semibold text-slate-100">Pay via UPI ID</span>
+													</div>
+													<div className="flex items-center gap-2">
+														<input 
+															readOnly 
+															className="flex-1 rounded-lg bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-400/30 p-3 text-slate-100 font-mono text-sm tracking-wide cursor-pointer select-all" 
+															value={session.upi_address || 'Not configured'} 
+															onClick={(e) => e.target.select()}
+														/>
+														<button
+															className="px-3 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white border-0 transition-colors shadow-lg shadow-emerald-500/25"
+															onClick={() => copyToClipboard(session.upi_address, 'UPI ID copied')}
+														>
+															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+															</svg>
+														</button>
+													</div>
+												</div>
+
+												<div className="bg-yellow-500/10 border border-yellow-400/30 rounded-lg p-3">
+													<div className="text-xs text-yellow-200 font-medium mb-1">⚡ Amount to Pay</div>
+													<div className="text-2xl font-bold text-yellow-100">₹{payable}</div>
+												</div>
+
+												<div className="text-[11px] text-slate-500 space-y-1">
+													<div>• Session valid until: {new Date(session.session_expires_at).toLocaleTimeString()}</div>
+													<div>• Need bank transfer? Contact us on WhatsApp</div>
+												</div>
 											</div>
 										</div>
 									</>
 								)}
 								{method === 'PHONEPE' && (
-									<div className="mt-3 rounded-lg border border-indigo-400/40 bg-indigo-500/10 p-4">
-										<div className="text-sm text-slate-100 font-medium mb-1">PhonePe Secure Checkout</div>
-										<div className="text-xs text-slate-400 mb-3">You will be redirected to PhonePe to pay using UPI, cards, or net banking. Your access activates automatically after success.</div>
+									<div className="rounded-xl border border-indigo-400/40 bg-gradient-to-br from-indigo-500/10 to-indigo-600/10 p-5">
+										<div className="flex items-start gap-3 mb-4">
+											<div className="p-2 rounded-lg bg-indigo-500/20 border border-indigo-400/30">
+												<CreditCardIcon className="h-6 w-6 text-indigo-300" />
+											</div>
+											<div className="flex-1">
+												<div className="text-base font-semibold text-slate-100 mb-1">PhonePe Secure Payment</div>
+												<div className="text-xs text-slate-400">Pay securely with multiple payment options</div>
+											</div>
+										</div>
+
+										<div className="bg-black/20 rounded-lg p-4 mb-4">
+											<div className="grid grid-cols-3 gap-3 text-center text-xs">
+												<div className="bg-white/5 rounded-lg p-2 border border-white/10">
+													<DevicePhoneMobileIcon className="h-5 w-5 text-indigo-300 mx-auto mb-1" />
+													<div className="text-slate-300">UPI Apps</div>
+												</div>
+												<div className="bg-white/5 rounded-lg p-2 border border-white/10">
+													<CreditCardIcon className="h-5 w-5 text-indigo-300 mx-auto mb-1" />
+													<div className="text-slate-300">Cards</div>
+												</div>
+												<div className="bg-white/5 rounded-lg p-2 border border-white/10">
+													<BanknotesIcon className="h-5 w-5 text-indigo-300 mx-auto mb-1" />
+													<div className="text-slate-300">Net Banking</div>
+												</div>
+											</div>
+										</div>
+
+										<div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
+											<svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+												<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+											</svg>
+											<span>Instant course access after successful payment</span>
+										</div>
+
 										<button
 											onClick={async () => {
 												try {
@@ -364,104 +456,151 @@ export default function PaymentPage() {
 													});
 													const data = await res.json().catch(() => ({}));
 													if (!res.ok) {
-														toast.error(data.message || 'Failed to create PhonePe order');
+														toast.error(data.message || 'Failed to create payment session');
 														return;
 													}
 													if (data.payPageUrl) {
 														window.location.href = data.payPageUrl;
 													} else {
-														toast.error('Missing payPageUrl in response');
+														toast.error('Unable to redirect to payment gateway');
 													}
 												} catch (e) {
-													toast.error('PhonePe initiation failed');
+													toast.error('Payment initiation failed');
 												} finally {
 													setPhonePeLoading(false);
 												}
 											}}
-											className={`px-4 py-2 rounded-md text-sm font-medium border ${phonePeLoading ? 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed' : 'bg-indigo-500/20 text-indigo-200 border-indigo-400/40 hover:bg-indigo-500/30'}`}
+											className={`w-full px-6 py-3.5 rounded-lg text-sm font-semibold border transition-all flex items-center justify-center gap-2 ${phonePeLoading ? 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed' : 'bg-indigo-500 text-white border-indigo-500 hover:bg-indigo-600 shadow-lg shadow-indigo-500/30'}`}
 											disabled={phonePeLoading}
 										>
-											{phonePeLoading ? 'Redirecting…' : 'Pay securely via PhonePe'}
+											{phonePeLoading ? (
+												<>
+													<svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+														<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+														<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+													</svg>
+													<span>Redirecting to Payment Gateway...</span>
+												</>
+											) : (
+												<>
+													<CreditCardIcon className="h-5 w-5" />
+													<span>Proceed to Checkout - ₹{baseAmountBeforeDirect}</span>
+												</>
+											)}
 										</button>
-										<div className="mt-2 text-[11px] text-slate-500">No manual proof required for PhonePe payments.</div>
+										
+										<div className="mt-3 text-[11px] text-slate-500 text-center">
+											Secured by PhonePe • 256-bit SSL encryption
+										</div>
 									</div>
 								)}
 								{method === 'DIRECT' && (
-								<div className="mt-4 text-xs text-slate-400">
-									<strong className="text-slate-200">How it works</strong>
-									<ol className="list-decimal ml-5 mt-1 space-y-1">
-										<li>Pay the amount shown to the UPI ID above or scan the QR.</li>
-										<li>Copy the reference/UTR from your bank app, or note the receipt email.</li>
-										<li><span className="font-semibold text-slate-200">Paste the Transaction/UTR below</span> and submit for verification.</li>
-									</ol>
-								</div>
-								)}
+								<div className="mt-6 bg-black/20 border border-white/10 rounded-xl p-5">
+									<div className="flex items-start gap-3 mb-4">
+										<div className="h-7 w-7 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-200 flex items-center justify-center text-sm font-semibold flex-shrink-0">3</div>
+										<div>
+											<h4 className="text-base font-semibold text-slate-100">Submit Payment Proof</h4>
+											<p className="text-xs text-slate-400 mt-1">Enter your transaction details for verification</p>
+										</div>
+									</div>
 
-								{method === 'DIRECT' && (
-								<div className="mt-4 bg-emerald-500/10 border border-emerald-400/30 rounded-lg p-3 text-xs text-emerald-200">
-									Please make sure to enter your Transaction/UTR number in the field below. You can also WhatsApp your payment screenshot; we'll verify and grant access within an hour.
-								</div>
-								)}
-
-								{method === 'DIRECT' && (
-									<>
-										<div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+									<div className="bg-indigo-500/5 border border-indigo-400/20 rounded-lg p-3 mb-4 text-xs text-slate-300">
+										<div className="flex items-start gap-2">
+											<svg className="w-4 h-4 text-indigo-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+											</svg>
 											<div>
-												<label className="block text-xs text-slate-400">Transaction / UTR ID</label>
-												<div className="flex items-center gap-2">
-													<input
-														className="mt-1 w-full rounded-md bg-black/30 border border-white/10 p-2 text-slate-100 font-mono tracking-wider text-base md:text-lg"
-														placeholder="e.g., 2310151234567890 or UTR123456"
-														value={proof.transaction_id}
-														onChange={e => setProof({ ...proof, transaction_id: e.target.value })}
-													/>
-													{proof.transaction_id ? (
-														<button
-															className="mt-1 px-2 py-1 rounded-md bg-emerald-500/15 text-emerald-200 border border-emerald-400/30 hover:bg-emerald-500/25 text-xs whitespace-nowrap"
-															onClick={() => copyToClipboard(proof.transaction_id, 'Transaction ID copied')}
-														>
-															Copy
-														</button>
-													) : null}
-												</div>
+												<span className="font-semibold text-slate-100">Where to find your Transaction ID:</span>
+												<div className="mt-1">Open your UPI app → Payment History → Select this payment → Copy the UTR/Reference number</div>
+											</div>
+										</div>
+									</div>
 
-												<div className="text-[11px] text-slate-500 mt-1">Tip: You can usually find the reference/UTR in your bank app's transaction details.</div>
-
-												{/* Inline WhatsApp alternative */}
-												<div className="mt-3 flex items-center flex-wrap gap-2 text-xs text-slate-400">
-													<span className="opacity-70">or</span>
-													<a
-														href={helpWhatsappUrl || '#'}
-														target="_blank"
-														rel="noreferrer"
-														className={`px-3 py-1.5 rounded-md border inline-flex items-center gap-1 ${helpWhatsappUrl ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
-													>
-														<ChatBubbleOvalLeftIcon className="h-4 w-4" />
-														Send payment proof on WhatsApp {SUPPORT_WA ? `(+${SUPPORT_WA})` : ''}
-													</a>
+									<div className="space-y-4">
+										<div>
+											<label className="block text-xs font-medium text-slate-300 mb-2">
+												Transaction ID / UTR Number <span className="text-red-400">*</span>
+											</label>
+											<div className="flex gap-2">
+												<input
+													className="flex-1 rounded-lg bg-black/40 border border-white/20 p-3 text-slate-100 font-mono text-sm tracking-wider placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-transparent"
+													placeholder="e.g., 234567890123"
+													value={proof.transaction_id}
+													onChange={e => setProof({ ...proof, transaction_id: e.target.value })}
+												/>
+												{proof.transaction_id && (
 													<button
-														className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-slate-200"
-														onClick={() => copyToClipboard(SUPPORT_WA, 'WhatsApp number copied')}
-														disabled={!SUPPORT_WA}
+														className="px-3 rounded-lg bg-emerald-500/15 text-emerald-200 border border-emerald-400/30 hover:bg-emerald-500/25 transition-colors"
+														onClick={() => copyToClipboard(proof.transaction_id, 'Copied!')}
 													>
-														Copy number
+														<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+														</svg>
 													</button>
-												</div>
-											</div>
-											<div>
-												<label className="block text-xs text-slate-400">Receipt Email (optional)</label>
-												<input className="mt-1 w-full rounded-md bg-black/30 border border-white/10 p-2 text-slate-100" placeholder="you@payemail.com" value={proof.receipt_email} onChange={e => setProof({ ...proof, receipt_email: e.target.value })} />
+												)}
 											</div>
 										</div>
 
-										<div className="mt-6 flex justify-between">
-											<button className="px-4 py-2 rounded-md bg-black/30 border border-white/10" onClick={() => setStep(1)}>Back</button>
-											<div className="flex gap-3">
-												<button className="px-4 py-2 rounded-md bg-black/30 border border-white/10" onClick={() => navigate(-1)}>Cancel</button>
-												<button className="px-4 py-2 rounded-md bg-emerald-500/15 text-emerald-200 border border-emerald-400/30 hover:bg-emerald-500/25" onClick={submitProof} disabled={submitting}>{submitting ? 'Submitting…' : 'Submit for verification'}</button>
+										<div>
+											<label className="block text-xs font-medium text-slate-400 mb-2">
+												Payment Receipt Email <span className="text-slate-600">(Optional)</span>
+											</label>
+											<input 
+												className="w-full rounded-lg bg-black/40 border border-white/10 p-3 text-slate-100 text-sm placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" 
+												placeholder="Optional: receipt email from your bank" 
+												value={proof.receipt_email} 
+												onChange={e => setProof({ ...proof, receipt_email: e.target.value })} 
+											/>
+										</div>
+
+										<div className="bg-emerald-500/10 border border-emerald-400/30 rounded-lg p-3">
+											<div className="flex items-start gap-2 text-xs text-emerald-200">
+												<svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+													<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+												</svg>
+												<div>
+													<span className="font-semibold">Alternative:</span> Send your payment screenshot via WhatsApp for instant verification
+												</div>
 											</div>
 										</div>
-									</>
+
+										<div className="flex items-center gap-3">
+											<a
+												href={helpWhatsappUrl || '#'}
+												target="_blank"
+												rel="noreferrer"
+												className={`flex-1 px-4 py-2.5 rounded-lg border text-sm font-medium inline-flex items-center justify-center gap-2 transition-all ${helpWhatsappUrl ? 'bg-green-600 hover:bg-green-700 text-white border-green-600 shadow-lg shadow-green-600/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
+											>
+												<ChatBubbleOvalLeftIcon className="h-4 w-4" />
+												<span>Send via WhatsApp</span>
+											</a>
+										</div>
+									</div>
+
+									<div className="mt-6 pt-5 border-t border-white/10 flex justify-between items-center">
+										<button 
+											className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 hover:bg-black/50 text-sm transition-colors" 
+											onClick={() => setStep(1)}
+										>
+											← Back
+										</button>
+										<button 
+											className={`px-6 py-2.5 rounded-lg font-semibold text-sm transition-all ${(!proof.transaction_id && !proof.receipt_email) || submitting ? 'bg-white/5 text-slate-400 border border-white/10 cursor-not-allowed' : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/25'}`}
+											onClick={submitProof} 
+											disabled={(!proof.transaction_id && !proof.receipt_email) || submitting}
+										>
+											{submitting ? (
+												<span className="flex items-center gap-2">
+													<svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+														<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+														<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+													</svg>
+													<span>Verifying...</span>
+												</span>
+											) : 'Submit for Verification'}
+										</button>
+									</div>
+								</div>
 								)}
 							</div>
 						</div>
@@ -471,70 +610,124 @@ export default function PaymentPage() {
 					{/* Sidebar: sticky order summary and help */}
 					<aside className="space-y-4">
 						<div className="sticky top-4 space-y-4">
-							<div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-								<h3 className="text-sm font-semibold text-slate-100 mb-3">Order summary</h3>
+							<div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+								<h3 className="text-sm font-semibold text-slate-100 mb-4 flex items-center gap-2">
+									<svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+									</svg>
+									Order Summary
+								</h3>
 								{session ? (
 									<>
-										<div className="flex items-center gap-3">
-											<img src={session.thumbnail || '/placeholder-course.png'} alt="course" className="h-12 w-12 rounded object-cover border border-white/10" />
-											<div className="min-w-0">
-												<div className="text-slate-200 text-sm font-medium truncate">{session.course_title}</div>
-												<div className="text-[11px] text-slate-500">INR</div>
+										<div className="flex items-center gap-3 pb-4 border-b border-white/10">
+											<img src={session.thumbnail || '/placeholder-course.png'} alt="course" className="h-16 w-16 rounded-lg object-cover border border-white/20 shadow-lg" />
+											<div className="min-w-0 flex-1">
+												<div className="text-slate-100 text-sm font-semibold line-clamp-2">{session.course_title}</div>
+												<div className="text-[11px] text-slate-500 mt-0.5">Digital Course Access</div>
 											</div>
 										</div>
-										<div className="mt-3 text-sm text-slate-300 flex items-center justify-between">
-											<span>Subtotal</span>
-											<span>₹{Number(session.original_amount ?? baseAmountBeforeDirect)}</span>
-										</div>
-										{couponSavings > 0 ? (
-											<div className="text-sm text-emerald-200 flex items-center justify-between">
-												<span>Discount {session.discount_percent ? `(${session.discount_percent}%)` : ''}</span>
-												<span>-₹{couponSavings}</span>
+										<div className="mt-4 space-y-2 text-sm">
+											<div className="flex items-center justify-between text-slate-300">
+												<span>Course Price</span>
+												<span className="font-medium">₹{Number(session.original_amount ?? baseAmountBeforeDirect)}</span>
 											</div>
-										) : null}
-										{method === 'DIRECT' && directDiscount > 0 ? (
-											<div className="text-sm text-emerald-200 flex items-center justify-between">
-												<span>Direct payment discount</span>
-												<span>-₹{directDiscount}</span>
-											</div>
-										) : null}
-										<div className="border-t border-white/10 my-3"></div>
-										<div className="text-sm text-slate-100 flex items-center justify-between font-semibold">
-											<span>Total</span>
-											<span>₹{payable}</span>
+											{couponSavings > 0 && (
+												<div className="flex items-center justify-between text-emerald-300">
+													<span className="flex items-center gap-1">
+														<svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+															<path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+															<path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
+														</svg>
+														Coupon {session.discount_percent ? `(${session.discount_percent}%)` : ''}
+													</span>
+													<span className="font-medium">-₹{couponSavings}</span>
+												</div>
+											)}
+											{method === 'DIRECT' && directDiscount > 0 && (
+												<div className="flex items-center justify-between text-emerald-300">
+													<span className="flex items-center gap-1">
+														<svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+															<path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+														</svg>
+														UPI Discount
+													</span>
+													<span className="font-medium">-₹{directDiscount}</span>
+												</div>
+											)}
 										</div>
-										<div className="mt-2 text-[11px] text-slate-500">Payment method: {method === 'DIRECT' ? 'Direct UPI / Bank Transfer' : 'PhonePe Gateway'}</div>
+										<div className="border-t border-white/10 my-4"></div>
+										<div className="flex items-center justify-between text-base font-bold">
+											<span className="text-slate-100">Total Amount</span>
+											<span className="text-emerald-400">₹{payable}</span>
+										</div>
+										<div className="mt-3 px-3 py-2 bg-indigo-500/10 border border-indigo-400/20 rounded-lg">
+											<div className="text-[11px] text-indigo-200 flex items-center gap-1.5">
+												<svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+													<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+												</svg>
+												<span className="font-medium">{method === 'DIRECT' ? 'Direct UPI Payment' : 'PhonePe Gateway'}</span>
+											</div>
+										</div>
 									</>
 								) : (
-									<div className="text-sm text-slate-400">Apply your coupon to see your total.</div>
+									<div className="text-sm text-slate-400 text-center py-8">
+										Complete step 1 to view pricing
+									</div>
 								)}
 							</div>
 
-							<div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-								<h4 className="text-sm font-semibold text-slate-100 mb-1">Need help?</h4>
-								<p className="text-xs text-slate-400">Share your payment screenshot on WhatsApp for faster review.</p>
-								<div className="mt-2 flex items-center gap-2">
-									<button
-										className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-xs text-slate-200"
-										onClick={() => copyToClipboard(SUPPORT_WA, 'WhatsApp number copied')}
-										disabled={!SUPPORT_WA}
-									>
-										Copy WhatsApp
-									</button>
+							<div className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border border-emerald-400/30 rounded-2xl p-5">
+								<h4 className="text-sm font-semibold text-emerald-100 mb-2 flex items-center gap-2">
+									<ChatBubbleOvalLeftIcon className="h-4 w-4" />
+									Need Help?
+								</h4>
+								<p className="text-xs text-slate-300 mb-3">Send your payment screenshot via WhatsApp for instant support</p>
+								<div className="space-y-2">
 									<a
 										href={helpWhatsappUrl || '#'}
 										target="_blank"
 										rel="noreferrer"
-										className={`px-3 py-1.5 rounded-md border text-xs inline-flex items-center gap-1 ${helpWhatsappUrl ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/30 hover:bg-emerald-500/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
+										className={`w-full px-4 py-2.5 rounded-lg border text-sm font-medium inline-flex items-center justify-center gap-2 transition-all ${helpWhatsappUrl ? 'bg-green-600 hover:bg-green-700 text-white border-green-600 shadow-lg shadow-green-600/25' : 'bg-white/5 text-slate-400 border-white/10 cursor-not-allowed'}`}
 									>
-										<ChatBubbleOvalLeftIcon className="h-4 w-4" /> Open WhatsApp
+										<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+											<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+										</svg>
+										Chat on WhatsApp
 									</a>
+									<button
+										className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm transition-colors text-slate-300"
+										onClick={() => copyToClipboard(SUPPORT_WA, 'Phone number copied')}
+										disabled={!SUPPORT_WA}
+									>
+										Copy Phone Number
+									</button>
 								</div>
-								<div className="mt-2 text-[11px] text-slate-500">Include your name, course, amount, and transaction ID. We usually verify and grant access within an hour.</div>
+								<div className="mt-3 text-[10px] text-slate-400 leading-relaxed">
+									We verify payments and grant access within 1 hour during business hours
+								</div>
 							</div>
 
-							<div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-								<div className="text-[11px] text-slate-500">✅ Manual verification by admin • 🔒 We never store card details • ⏱ Access usually granted within an hour</div>
+							<div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+								<div className="text-[11px] text-slate-400 space-y-2">
+									<div className="flex items-center gap-2">
+										<svg className="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+										</svg>
+										<span>Secure payment processing</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<svg className="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+										</svg>
+										<span>Instant course access</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<svg className="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+										</svg>
+										<span>Lifetime access to content</span>
+									</div>
+								</div>
 							</div>
 						</div>
 					</aside>
