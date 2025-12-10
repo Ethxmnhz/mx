@@ -18,6 +18,7 @@ import UserProfile from './pages/UserProfile';
 import EditCourse from './pages/Editcourse'
 import AdminCourseContent from './pages/AdminCourseContent'; // Import the new component
 import AdminManualPayments from './pages/AdminManualPayments';
+import AdminUsers from './pages/AdminUsers';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword'; // Import the ResetPassword component
 import PendingPaymentsOverlay from './components/PendingPaymentsOverlay';
@@ -178,6 +179,14 @@ function App() {
           element={
             <ProtectedRoute adminOnly={true}>
               <AdminManualPayments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminUsers />
             </ProtectedRoute>
           }
         />

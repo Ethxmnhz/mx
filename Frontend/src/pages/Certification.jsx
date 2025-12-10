@@ -118,7 +118,7 @@ export default function Certification() {
               {/* Original Price */}
               <div className="rounded-xl bg-white/5 border border-white/10 p-6">
                 <div className="text-slate-400 text-sm">Regular Price</div>
-                <div className="mt-2 text-2xl font-bold text-slate-300">₹14,999</div>
+                  <div className="mt-2 text-2xl font-bold text-slate-300">₹17,999</div>
                 <div className="text-xs text-slate-500 mt-1">Full price for regular access</div>
               </div>
 
@@ -128,8 +128,8 @@ export default function Certification() {
                   <SparklesIcon className="h-3 w-3" /> 90% OFF
                 </div>
                 <div className="text-emerald-300 text-sm font-semibold">First 100 Users</div>
-                <div className="mt-2 text-3xl font-extrabold text-emerald-300">₹1,999</div>
-                <div className="text-xs text-emerald-200/70 mt-1">Save ₹13,000</div>
+                  <div className="mt-2 text-3xl font-extrabold text-emerald-300">₹1,799</div>
+                  <div className="text-xs text-emerald-200/70 mt-1">Save ₹16,200</div>
                 <Link to="/signup" className="mt-4 w-full px-4 py-2 rounded-lg bg-emerald-500/30 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/40 font-semibold text-sm inline-block">Claim Your Offer Now</Link>
               </div>
             </div>

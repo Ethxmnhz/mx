@@ -165,6 +165,13 @@ export default function AdminDashboard() {
           <h2 className="text-white font-semibold">Courses</h2>
           <div className="flex gap-2">
             <button
+              onClick={() => navigate('/admin/users')}
+              className="px-3 py-2 text-sm rounded-lg bg-indigo-500/20 text-indigo-200 border border-indigo-400/30 hover:bg-indigo-500/25"
+            >
+              <UsersIcon className="h-4 w-4 inline-block mr-1" />
+              Users & Payments
+            </button>
+            <button
               onClick={() => navigate('/admin/help')}
               className="px-3 py-2 text-sm rounded-lg bg-white/5 text-slate-200 border border-white/10 hover:bg-white/10"
             >Help Desk</button>
