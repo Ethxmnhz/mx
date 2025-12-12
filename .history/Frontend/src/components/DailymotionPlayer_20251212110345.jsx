@@ -50,26 +50,25 @@ function buildEmbedUrl(input) {
     // Enable API for time tracking
     params.set('api', '1');
 
-    // Disable all recommendations, related, autoplay, playlist, and next video
+    // Disable all recommendations and related videos aggressively
     params.set('queue-enable', '0');
     params.set('queue-autoplay-next', '0');
     params.set('endscreen-enable', '0');
     params.set('sharing-enable', '0');
     params.set('ui-logo', '0');
     params.set('ui-start-screen-info', '0');
+    
+    // Explicitly disable related videos and recommendations
     params.set('related', '0');
     params.set('recommendations', '0');
-    params.set('autoplay', '0'); // Ensure NO autoplay of next/recommended video
-    params.set('playlist', ''); // Remove any playlist
-    params.set('list', ''); // Remove any list
-
+    
     // Keep controls for fullscreen capability
     params.set('controls', 'true');
     params.set('syndication', '0');
-
+    
     // Disable video info overlay
     params.set('ui-show-info', '0');
-
+    
     // Disable external links
     params.set('origin', window.location.origin);
 
@@ -78,12 +77,17 @@ function buildEmbedUrl(input) {
     params.set('ui-highlight', '10b981'); // emerald-500-ish
 
     // Playback preferences
+    params.set('autoplay', '1');
     params.set('muted', '0'); // browsers may override to muted
     params.set('playsinline', '1');
 
     url.search = params.toString();
     return url.toString();
   } catch (e) {
+    if (import.meta?.env?.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn('Invalid Dailymotion URL:', input, e);
+    }
     return '';
   }
 }

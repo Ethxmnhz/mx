@@ -9,6 +9,7 @@ const PaymentSuccess = () => {
   
   const [status, setStatus] = useState('CHECKING');
   const [attempts, setAttempts] = useState(0);
+  const [courseId, setCourseId] = useState(null);
   const [lastResponse, setLastResponse] = useState(null);
 
   const API_BASE = (import.meta?.env?.VITE_API_URL || window?.VITE_API_URL || '').replace(/\/$/, '');
@@ -31,10 +32,12 @@ const PaymentSuccess = () => {
       const state = data?.state || 'UNKNOWN';
       const success = data?.success || false;
       
+      console.log('Payment status check:', { orderId, state, success, data });
 
       if (state === 'COMPLETED' || success) {
         setStatus('SUCCESS');
         toast.success('Payment confirmed! Activating access...');
+        // Redirect to my-learning to see all courses
         setTimeout(() => {
           navigate('/my-learning');
         }, 1500);
@@ -46,6 +49,17 @@ const PaymentSuccess = () => {
       }
     } catch (e) {
       console.error('Status check error:', e);
+      setStatus('ERROR');
+    } finally {
+      setAttempts(a => a + 1);
+    }
+  }, [orderId, API_BASE, navigate]);
+        setStatus('FAILED');
+        toast.error('Payment failed or cancelled.');
+      } else {
+        setStatus('PENDING');
+      }
+    } catch (e) {
       setStatus('ERROR');
     } finally {
       setAttempts(a => a + 1);
@@ -82,8 +96,11 @@ const PaymentSuccess = () => {
         )}
         {lastResponse && status !== 'SUCCESS' && (
           <pre className="mt-6 text-left text-[10px] max-h-48 overflow-auto p-2 rounded bg-black/40 border border-white/10 text-slate-400">
-            {JSON.stringify(lastResponse, null, 2)}
+            {JSON.stringify(lastResponse.raw?.data || lastResponse.raw || {}, null, 2)}
           </pre>
+        )}
+        {status === 'SUCCESS' && courseId && (
+          <div className="mt-4 text-xs text-slate-400">Course ID: {courseId}</div>
         )}
       </div>
     </div>

@@ -959,6 +959,166 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+// Get all users with their enrollments and payment history
+const getAllUsers = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return res.status(401).json({ message: 'Invalid token' });
+    const { data: userRecord } = await supabaseAdmin
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+    if (!userRecord?.is_admin) return res.status(403).json({ message: 'Forbidden' });
+
+    // Fetch all users with their enrollment count
+    const { data: users, error: usersError } = await supabaseAdmin
+      .from('users')
+      .select('id, email, full_name, created_at, is_admin')
+      .order('created_at', { ascending: false });
+
+    if (usersError) {
+      console.error('Error fetching users:', usersError);
+      return res.status(500).json({ message: 'Failed to fetch users' });
+    }
+
+    // Fetch enrollments for all users
+    const { data: enrollments } = await supabaseAdmin
+      .from('enrollments')
+      .select('user_id, course_id, status, created_at, courses(id, title, price)');
+
+    // Fetch all payment transactions (manual + PhonePe)
+    const { data: manualPayments } = await supabaseAdmin
+      .from('manual_payments')
+      .select('user_id, course_id, status, amount, transaction_id, created_at, courses(id, title)');
+
+    const { data: orders } = await supabaseAdmin
+      .from('orders')
+      .select('user_id, course_id, status, amount, phonepe_transaction_id, created_at, courses(id, title)');
+
+    // Group data by user
+    const enrichedUsers = users.map(u => {
+      const userEnrollments = (enrollments || []).filter(e => e.user_id === u.id);
+      const userManualPayments = (manualPayments || []).filter(p => p.user_id === u.id);
+      const userOrders = (orders || []).filter(o => o.user_id === u.id);
+
+      return {
+        ...u,
+        enrollments: userEnrollments.map(e => ({
+          course_id: e.course_id,
+          course_title: e.courses?.title || 'Unknown',
+          course_price: e.courses?.price || 0,
+          status: e.status,
+          enrolled_at: e.created_at
+        })),
+        manual_payments: userManualPayments.map(p => ({
+          course_id: p.course_id,
+          course_title: p.courses?.title || 'Unknown',
+          amount: p.amount,
+          status: p.status,
+          transaction_id: p.transaction_id,
+          created_at: p.created_at
+        })),
+        phonepe_orders: userOrders.map(o => ({
+          course_id: o.course_id,
+          course_title: o.courses?.title || 'Unknown',
+          amount: o.amount,
+          status: o.status,
+          transaction_id: o.phonepe_transaction_id,
+          created_at: o.created_at
+        })),
+        total_spent: [
+          ...userEnrollments.map(e => e.courses?.price || 0),
+        ].reduce((sum, val) => sum + val, 0),
+        transaction_count: userManualPayments.length + userOrders.length
+      };
+    });
+
+    res.json(enrichedUsers);
+  } catch (err) {
+    console.error('getAllUsers error:', err);
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+};
+
+// Get detailed user info with all transactions
+const getUserDetails = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return res.status(401).json({ message: 'Invalid token' });
+    const { data: userRecord } = await supabaseAdmin
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+    if (!userRecord?.is_admin) return res.status(403).json({ message: 'Forbidden' });
+
+    const { userId } = req.params;
+
+    // Fetch user basic info
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (userError || !userData) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Fetch all enrollments
+    const { data: enrollments } = await supabaseAdmin
+      .from('enrollments')
+      .select('*, courses(id, title, price, thumbnail)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    // Fetch all manual payments
+    const { data: manualPayments } = await supabaseAdmin
+      .from('manual_payments')
+      .select('*, courses(id, title, price)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    // Fetch all PhonePe orders
+    const { data: orders } = await supabaseAdmin
+      .from('orders')
+      .select('*, courses(id, title, price)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    res.json({
+      user: userData,
+      enrollments: enrollments || [],
+      manual_payments: manualPayments || [],
+      phonepe_orders: orders || [],
+      stats: {
+        total_enrollments: (enrollments || []).length,
+        total_transactions: (manualPayments || []).length + (orders || []).length,
+        successful_payments: [
+          ...(manualPayments || []).filter(p => p.status === 'approved'),
+          ...(orders || []).filter(o => o.status === 'COMPLETED')
+        ].length,
+        pending_payments: [
+          ...(manualPayments || []).filter(p => p.status === 'pending'),
+          ...(orders || []).filter(o => o.status === 'PENDING')
+        ].length,
+        failed_payments: [
+          ...(manualPayments || []).filter(p => p.status === 'rejected'),
+          ...(orders || []).filter(o => o.status === 'FAILED')
+        ].length
+      }
+    });
+  } catch (err) {
+    console.error('getUserDetails error:', err);
+    res.status(500).json({ message: 'Failed to fetch user details' });
+  }
+};
+
 export { 
   createCourse, 
   deleteCourse, 
@@ -968,7 +1128,9 @@ export {
   uploadCourseContent, 
   getCourseContents, 
   deleteCourseContent,
-  getDashboardStats
+  getDashboardStats,
+  getAllUsers,
+  getUserDetails
 };
 
 export { listEnrollmentsByCourse, revokeEnrollment };

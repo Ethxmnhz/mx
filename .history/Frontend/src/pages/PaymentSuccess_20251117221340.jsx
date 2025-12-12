@@ -31,6 +31,7 @@ const PaymentSuccess = () => {
       const state = data?.state || 'UNKNOWN';
       const success = data?.success || false;
       
+      console.log('Payment status check:', { orderId, state, success, data });
 
       if (state === 'COMPLETED' || success) {
         setStatus('SUCCESS');
@@ -84,6 +85,9 @@ const PaymentSuccess = () => {
           <pre className="mt-6 text-left text-[10px] max-h-48 overflow-auto p-2 rounded bg-black/40 border border-white/10 text-slate-400">
             {JSON.stringify(lastResponse, null, 2)}
           </pre>
+        )}
+        {status === 'SUCCESS' && courseId && (
+          <div className="mt-4 text-xs text-slate-400">Course ID: {courseId}</div>
         )}
       </div>
     </div>

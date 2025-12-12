@@ -31,6 +31,7 @@ const PaymentSuccess = () => {
       const state = data?.state || 'UNKNOWN';
       const success = data?.success || false;
       
+      console.log('Payment status check:', { orderId, state, success, data });
 
       if (state === 'COMPLETED' || success) {
         setStatus('SUCCESS');

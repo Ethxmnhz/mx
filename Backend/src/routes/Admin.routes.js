@@ -3,7 +3,7 @@ import { Router } from "express";
 import { authenticate } from '../middleware/auth.js';
 import {
 		createCourse, upload, deleteCourse, editCourse, getCourses, getCourseById, uploadCourseContent, getCourseContents, deleteCourseContent, getDashboardStats, listEnrollmentsByCourse, revokeEnrollment,
-		moveModule, moveTopic
+		moveModule, moveTopic, getAllUsers, getUserDetails
 } from "../controllers/Admin.controller.js";
 import * as AdminController from "../controllers/Admin.controller.js";
 
@@ -62,6 +62,10 @@ router.delete('/enrollments/:enrollmentId', authenticate, revokeEnrollment);
 // Delete individual content
 router.delete("/courses/contents/:contentId", authenticate, deleteCourseContent);
 router.get("/dashboard/stats", authenticate, getDashboardStats);
+
+// User management
+router.get("/users", authenticate, getAllUsers);
+router.get("/users/:userId", authenticate, getUserDetails);
 
 export default router
 
