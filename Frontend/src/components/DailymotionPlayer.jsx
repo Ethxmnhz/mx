@@ -64,14 +64,31 @@ function extractYouTubeId(input) {
 // Build a themed embed URL with preferred params; return '' if invalid
 function buildEmbedUrl(input) {
   // Prefer Dailymotion, but accept YouTube links too
-  const dmId = extractDailymotionId(input);
-  const ytId = extractYouTubeId(input);
+  // Guard: if input looks malformed (e.g. 'httpsyoutubeFgU6Qghbyc') try a loose YouTube id search
+  let dmId = extractDailymotionId(input);
+  let ytId = extractYouTubeId(input);
+  if (!dmId && !ytId && typeof input === 'string') {
+    const loose = input.match(/[A-Za-z0-9_-]{11}/);
+    if (loose) ytId = loose[0];
+  }
   let baseUrl = '';
   let service = null;
+  if (dmId) {
+    // Sanity-check dmId
+    if (!/^x[0-9a-zA-Z]{3,}$/.test(dmId)) {
+      dmId = null;
+    }
+  }
   if (dmId) {
     service = 'dailymotion';
     baseUrl = `https://www.dailymotion.com/embed/video/${dmId}`;
   } else if (ytId) {
+    // Sanity-check ytId (must be 11 chars)
+    if (!/^[A-Za-z0-9_-]{11}$/.test(ytId)) {
+      ytId = null;
+    }
+  }
+  if (!dmId && ytId) {
     service = 'youtube';
     baseUrl = `https://www.youtube.com/embed/${ytId}`;
   } else if (input?.startsWith('http')) {
