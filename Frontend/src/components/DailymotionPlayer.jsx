@@ -7,10 +7,8 @@ function extractDailymotionId(input) {
   if (!raw) return null;
 
   // If it looks like a bare Dailymotion ID, prefer IDs that start with 'x'
-  // NOTE: avoid treating bare YouTube IDs (11 chars, may include _ or -) as Dailymotion IDs
-  if (/^[a-zA-Z0-9]+$/.test(raw) && raw.startsWith('x')) {
-    return raw;
-  }
+  // Dailymotion IDs commonly start with 'x' followed by alphanumerics
+  if (/^x[0-9a-zA-Z]+$/.test(raw)) return raw;
 
   try {
     // Accept protocol-relative or relative by providing base
@@ -42,8 +40,8 @@ function extractYouTubeId(input) {
   const raw = input.trim();
   if (!raw) return null;
 
-  // Bare YouTube id
-  if (/^[a-zA-Z0-9_-]{6,}$/.test(raw) && !raw.includes('http')) return raw;
+  // Bare YouTube id (standard IDs are 11 characters)
+  if (/^[A-Za-z0-9_-]{11}$/.test(raw) && !raw.includes('http')) return raw;
 
   try {
     const url = raw.startsWith('http') ? new URL(raw) : new URL(raw, 'https://www.youtube.com');
