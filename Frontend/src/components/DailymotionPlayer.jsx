@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 
-// Extract a Dailymotion video ID from various URL shapes, or return null
+// Extract a Dailymotion or YouTube video ID from various URL shapes, or return null
 function extractDailymotionId(input) {
   if (!input || typeof input !== 'string') return null;
   const raw = input.trim();
@@ -35,11 +35,49 @@ function extractDailymotionId(input) {
   return null;
 }
 
+// Extract YouTube ID from URL or return null
+function extractYouTubeId(input) {
+  if (!input || typeof input !== 'string') return null;
+  const raw = input.trim();
+  if (!raw) return null;
+
+  // Bare YouTube id
+  if (/^[a-zA-Z0-9_-]{6,}$/.test(raw) && !raw.includes('http')) return raw;
+
+  try {
+    const url = raw.startsWith('http') ? new URL(raw) : new URL(raw, 'https://www.youtube.com');
+    const host = url.hostname.toLowerCase();
+    if (host.includes('youtube.com')) {
+      // watch?v=ID or /embed/ID
+      if (url.searchParams.get('v')) return url.searchParams.get('v');
+      const parts = url.pathname.split('/').filter(Boolean);
+      const embedIdx = parts.findIndex(p => p === 'embed');
+      if (embedIdx !== -1 && parts[embedIdx + 1]) return parts[embedIdx + 1];
+    }
+    if (host.includes('youtu.be')) {
+      const parts = url.pathname.split('/').filter(Boolean);
+      if (parts[0]) return parts[0];
+    }
+  } catch (_) {}
+  return null;
+}
+
 // Build a themed embed URL with preferred params; return '' if invalid
 function buildEmbedUrl(input) {
-  const id = extractDailymotionId(input) || null;
-  const embedBase = 'https://www.dailymotion.com/embed/video/';
-  const baseUrl = id ? `${embedBase}${id}` : (input?.startsWith('http') ? input : '');
+  // Prefer Dailymotion, but accept YouTube links too
+  const dmId = extractDailymotionId(input);
+  const ytId = extractYouTubeId(input);
+  let baseUrl = '';
+  let service = null;
+  if (dmId) {
+    service = 'dailymotion';
+    baseUrl = `https://www.dailymotion.com/embed/video/${dmId}`;
+  } else if (ytId) {
+    service = 'youtube';
+    baseUrl = `https://www.youtube.com/embed/${ytId}`;
+  } else if (input?.startsWith('http')) {
+    baseUrl = input;
+  }
 
   if (!baseUrl) return '';
 
@@ -47,39 +85,43 @@ function buildEmbedUrl(input) {
     const url = new URL(baseUrl);
     const params = url.searchParams;
 
-    // Enable API for time tracking
-    params.set('api', '1');
-
-    // Disable all recommendations, related, autoplay, playlist, and next video
-    params.set('queue-enable', '0');
-    params.set('queue-autoplay-next', '0');
-    params.set('endscreen-enable', '0');
-    params.set('sharing-enable', '0');
-    params.set('ui-logo', '0');
-    params.set('ui-start-screen-info', '0');
-    params.set('related', '0');
-    params.set('recommendations', '0');
-    params.set('autoplay', '0'); // Ensure NO autoplay of next/recommended video
-    params.set('playlist', ''); // Remove any playlist
-    params.set('list', ''); // Remove any list
-
-    // Keep controls for fullscreen capability
-    params.set('controls', 'true');
-    params.set('syndication', '0');
-
-    // Disable video info overlay
-    params.set('ui-show-info', '0');
-
-    // Disable external links
-    params.set('origin', window.location.origin);
-
-    // Theming and highlight color to match neon accents
-    params.set('ui-theme', 'dark');
-    params.set('ui-highlight', '10b981'); // emerald-500-ish
-
-    // Playback preferences
-    params.set('muted', '0'); // browsers may override to muted
-    params.set('playsinline', '1');
+    if (service === 'dailymotion') {
+      // Dailymotion params
+      params.set('api', '1');
+      params.set('queue-enable', '0');
+      params.set('queue-autoplay-next', '0');
+      params.set('endscreen-enable', '0');
+      params.set('sharing-enable', '0');
+      params.set('ui-logo', '0');
+      params.set('ui-start-screen-info', '0');
+      params.set('related', '0');
+      params.set('recommendations', '0');
+      params.set('autoplay', '0');
+      params.set('playlist', '');
+      params.set('list', '');
+      params.set('controls', 'true');
+      params.set('syndication', '0');
+      params.set('ui-show-info', '0');
+      params.set('origin', window.location.origin);
+      params.set('ui-theme', 'dark');
+      params.set('ui-highlight', '10b981');
+      params.set('muted', '0');
+      params.set('playsinline', '1');
+    } else if (service === 'youtube') {
+      // YouTube params: disable related videos, no autoplay, enable JS API for events
+      params.set('rel', '0');
+      params.set('modestbranding', '1');
+      params.set('controls', '1');
+      params.set('playsinline', '1');
+      params.set('autoplay', '0');
+      params.set('enablejsapi', '1');
+      params.set('origin', window.location.origin);
+    } else {
+      // Generic: try to disable autoplay
+      params.set('autoplay', '0');
+      params.set('playsinline', '1');
+      params.set('origin', window.location.origin);
+    }
 
     url.search = params.toString();
     return url.toString();
@@ -119,19 +161,34 @@ export default function DailymotionPlayer({ embedUrl, title = 'Video' }) {
     iframe.addEventListener('load', handleLoad);
     iframe.addEventListener('error', handleError);
 
-    // Listen for Dailymotion postMessage events (playback events)
+    // Listen for postMessage events from embeds (Dailymotion, YouTube)
     const handleMessage = (event) => {
-      // Only accept messages from the Dailymotion embed
       if (!iframe || event.source !== iframe.contentWindow) return;
       if (typeof event.data === 'string') {
+        // Try parse JSON payloads
         try {
           const data = JSON.parse(event.data);
           if (data && data.event) {
+            // Dailymotion: event === 'play' or 'playing'
             if (data.event === 'play' || data.event === 'playing') {
               setStatus('loaded');
+              return;
+            }
+            // YouTube IFrame API posts onStateChange with info:1 for playing
+            if (data.event === 'onStateChange' && (data.info === 1 || data.info === '1')) {
+              setStatus('loaded');
+              return;
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          // Some providers send string messages containing onStateChange
+          if (event.data.includes && event.data.includes('onStateChange') && event.data.includes('info')) {
+            if (event.data.includes('"info":1') || event.data.includes('"info": 1') || event.data.includes('info:1')) {
+              setStatus('loaded');
+              return;
+            }
+          }
+        }
       }
     };
     window.addEventListener('message', handleMessage);
