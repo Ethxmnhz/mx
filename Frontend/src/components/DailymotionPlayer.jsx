@@ -6,8 +6,9 @@ function extractDailymotionId(input) {
   const raw = input.trim();
   if (!raw) return null;
 
-  // If it looks like a bare ID (common DM ids like x84shcd)
-  if (/^[a-zA-Z0-9]+$/.test(raw)) {
+  // If it looks like a bare Dailymotion ID, prefer IDs that start with 'x'
+  // NOTE: avoid treating bare YouTube IDs (11 chars, may include _ or -) as Dailymotion IDs
+  if (/^[a-zA-Z0-9]+$/.test(raw) && raw.startsWith('x')) {
     return raw;
   }
 
@@ -76,7 +77,19 @@ function buildEmbedUrl(input) {
     service = 'youtube';
     baseUrl = `https://www.youtube.com/embed/${ytId}`;
   } else if (input?.startsWith('http')) {
-    baseUrl = input;
+    // Only accept explicit YouTube or Dailymotion host URLs as fallback; avoid embedding full pages
+    try {
+      const u = new URL(input);
+      const host = u.hostname.toLowerCase();
+      if (host.includes('dailymotion.com') || host.includes('dai.ly') || host.includes('youtube.com') || host.includes('youtu.be')) {
+        baseUrl = input;
+      } else {
+        // Unsupported host - don't attempt to embed arbitrary page
+        return '';
+      }
+    } catch (e) {
+      return '';
+    }
   }
 
   if (!baseUrl) return '';
