@@ -6,9 +6,10 @@ function extractDailymotionId(input) {
   const raw = input.trim();
   if (!raw) return null;
 
-  // If it looks like a bare Dailymotion ID, prefer IDs that start with 'x'
-  // Dailymotion IDs commonly start with 'x' followed by alphanumerics
-  if (/^x[0-9a-zA-Z]+$/.test(raw)) return raw;
+  // If it looks like a bare ID (common DM ids like x84shcd)
+  if (/^[a-zA-Z0-9]+$/.test(raw)) {
+    return raw;
+  }
 
   try {
     // Accept protocol-relative or relative by providing base
@@ -40,8 +41,8 @@ function extractYouTubeId(input) {
   const raw = input.trim();
   if (!raw) return null;
 
-  // Bare YouTube id (standard IDs are 11 characters)
-  if (/^[A-Za-z0-9_-]{11}$/.test(raw) && !raw.includes('http')) return raw;
+  // Bare YouTube id
+  if (/^[a-zA-Z0-9_-]{6,}$/.test(raw) && !raw.includes('http')) return raw;
 
   try {
     const url = raw.startsWith('http') ? new URL(raw) : new URL(raw, 'https://www.youtube.com');
@@ -64,47 +65,18 @@ function extractYouTubeId(input) {
 // Build a themed embed URL with preferred params; return '' if invalid
 function buildEmbedUrl(input) {
   // Prefer Dailymotion, but accept YouTube links too
-  // Guard: if input looks malformed (e.g. 'httpsyoutubeFgU6Qghbyc') try a loose YouTube id search
-  let dmId = extractDailymotionId(input);
-  let ytId = extractYouTubeId(input);
-  if (!dmId && !ytId && typeof input === 'string') {
-    const loose = input.match(/[A-Za-z0-9_-]{11}/);
-    if (loose) ytId = loose[0];
-  }
+  const dmId = extractDailymotionId(input);
+  const ytId = extractYouTubeId(input);
   let baseUrl = '';
   let service = null;
-  if (dmId) {
-    // Sanity-check dmId
-    if (!/^x[0-9a-zA-Z]{3,}$/.test(dmId)) {
-      dmId = null;
-    }
-  }
   if (dmId) {
     service = 'dailymotion';
     baseUrl = `https://www.dailymotion.com/embed/video/${dmId}`;
   } else if (ytId) {
-    // Sanity-check ytId (must be 11 chars)
-    if (!/^[A-Za-z0-9_-]{11}$/.test(ytId)) {
-      ytId = null;
-    }
-  }
-  if (!dmId && ytId) {
     service = 'youtube';
     baseUrl = `https://www.youtube.com/embed/${ytId}`;
   } else if (input?.startsWith('http')) {
-    // Only accept explicit YouTube or Dailymotion host URLs as fallback; avoid embedding full pages
-    try {
-      const u = new URL(input);
-      const host = u.hostname.toLowerCase();
-      if (host.includes('dailymotion.com') || host.includes('dai.ly') || host.includes('youtube.com') || host.includes('youtu.be')) {
-        baseUrl = input;
-      } else {
-        // Unsupported host - don't attempt to embed arbitrary page
-        return '';
-      }
-    } catch (e) {
-      return '';
-    }
+    baseUrl = input;
   }
 
   if (!baseUrl) return '';
